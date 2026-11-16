@@ -17,7 +17,9 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saarmesh.waechter.data.RepeaterRepository
 import de.saarmesh.waechter.data.settings.SettingsRepository
+import de.saarmesh.waechter.domain.BatteryThresholds
 import de.saarmesh.waechter.domain.BatteryTransitionDetector
+import de.saarmesh.waechter.domain.withThresholds
 import de.saarmesh.waechter.domain.StatusLogic
 import de.saarmesh.waechter.domain.TransitionDetector
 import de.saarmesh.waechter.notify.Notifier
@@ -75,7 +77,8 @@ class PollWorker @AssistedInject constructor(
             } catch (_: Exception) {
                 null
             } ?: continue
-            val t = BatteryTransitionDetector.detect(fav.batteryLevel, info, now)
+            val eff = info.withThresholds(fav.batteryThresholds(BatteryThresholds(info.lowMv, info.criticalMv)))
+            val t = BatteryTransitionDetector.detect(fav.batteryLevel, eff, now)
             val name = byKey[fav.publicKey]?.name ?: fav.publicKey.take(8)
             if (t.event != null && fav.notify && notifyOn) notifier.batteryAlert(fav.publicKey, name, t.event, info.latestMv ?: 0)
             if (t.levelNow != fav.batteryLevel) repo.setBatteryLevel(fav.publicKey, t.levelNow)

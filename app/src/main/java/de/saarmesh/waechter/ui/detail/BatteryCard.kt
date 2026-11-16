@@ -17,6 +17,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,6 +38,8 @@ import de.saarmesh.waechter.R
 import de.saarmesh.waechter.domain.BatteryInfo
 import de.saarmesh.waechter.domain.BatteryLevel
 import de.saarmesh.waechter.domain.BatteryLogic
+import de.saarmesh.waechter.domain.BatteryProfile
+import de.saarmesh.waechter.domain.BatteryThresholdLogic
 import de.saarmesh.waechter.ui.common.agoText
 import java.time.Instant
 import java.time.ZoneId
@@ -54,7 +57,7 @@ private fun volts(mv: Int) = String.format(Locale.GERMANY, "%.2f V", mv / 1000.0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BatteryCard(b: BatteryInfo) {
+fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER, onEditProfile: (() -> Unit)? = null) {
     val now = System.currentTimeMillis() / 1000
     val mv = b.latestMv ?: return
     val level = BatteryLogic.level(mv, b.lowMv, b.criticalMv)
@@ -107,11 +110,24 @@ fun BatteryCard(b: BatteryInfo) {
             } else {
                 Text(stringResource(R.string.batt_few), style = MaterialTheme.typography.bodySmall)
             }
-            Text(
-                stringResource(R.string.batt_thresholds, volts(b.lowMv), volts(b.criticalMv)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (BatteryThresholdLogic.implausible(profile, mv)) {
+                Text(
+                    stringResource(R.string.batt_implausible, volts(mv), stringResource(profile.label()), volts(profile.maxPlausibleMv!!)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.batt_thresholds, stringResource(profile.label()), volts(b.lowMv), volts(b.criticalMv)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                if (onEditProfile != null) {
+                    TextButton(onClick = onEditProfile) { Text(stringResource(R.string.batt_change)) }
+                }
+            }
             Text(
                 stringResource(R.string.batt_source),
                 style = MaterialTheme.typography.bodySmall,

@@ -52,7 +52,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.saarmesh.waechter.R
 import de.saarmesh.waechter.data.remote.Endpoints
+import de.saarmesh.waechter.domain.BatteryProfile
+import de.saarmesh.waechter.domain.BatteryThresholds
 import de.saarmesh.waechter.domain.Repeater
+import de.saarmesh.waechter.domain.withThresholds
 import de.saarmesh.waechter.ui.common.StatusDot
 import de.saarmesh.waechter.ui.common.agoText
 import de.saarmesh.waechter.ui.common.durationText
@@ -71,6 +74,7 @@ fun DetailScreen(onBack: () -> Unit, onOpen: (String) -> Unit, vm: DetailViewMod
     val r = st.repeater
     val base = st.settings?.serverUrl ?: ""
     val uri = LocalUriHandler.current
+    var showProfile by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -102,7 +106,19 @@ fun DetailScreen(onBack: () -> Unit, onOpen: (String) -> Unit, vm: DetailViewMod
             }
             StatusCard(st, r, onOpen)
             if (st.favorite != null) AlarmCard(st, vm)
-            st.battery?.takeIf { it.hasData }?.let { BatteryCard(it) }
+            st.battery?.takeIf { it.hasData }?.let { b ->
+                val fav = st.favorite
+                val profile = fav?.batteryProfile ?: BatteryProfile.SERVER
+                val eff = b.withThresholds(fav?.batteryThresholds(BatteryThresholds(b.lowMv, b.criticalMv)) ?: BatteryThresholds(b.lowMv, b.criticalMv))
+                BatteryCard(eff, profile, onEditProfile = if (fav != null) ({ showProfile = true }) else null)
+                if (showProfile && fav != null) {
+                    BatteryProfileDialog(
+                        current = profile, lowMv = fav.batteryLowMv, criticalMv = fav.batteryCriticalMv,
+                        onDismiss = { showProfile = false },
+                        onSave = { p, lo, cr -> vm.setBatteryProfile(p, lo, cr); showProfile = false },
+                    )
+                }
+            }
             HistoryCard(st, r, vm)
             if (r.lat != null && r.lon != null) {
                 Card {

@@ -80,4 +80,11 @@ data class Favorite(
     val wasDown: Boolean?,
     /** Zuletzt bewertete Akku-Stufe; null = keine Werte oder noch nie bewertet. */
     val batteryLevel: BatteryLevel? = null,
-)
+    val batteryProfile: BatteryProfile = BatteryProfile.SERVER,
+    val batteryLowMv: Int? = null,
+    val batteryCriticalMv: Int? = null,
+) {
+    /** Wirksame Akku-Schwellen fuer diesen Favoriten. */
+    fun batteryThresholds(server: BatteryThresholds) =
+        BatteryThresholdLogic.effective(server, batteryProfile, batteryLowMv, batteryCriticalMv)
+}

@@ -8,6 +8,7 @@ import de.saarmesh.waechter.data.RepeaterRepository
 import de.saarmesh.waechter.data.settings.AppSettings
 import de.saarmesh.waechter.data.settings.SettingsRepository
 import de.saarmesh.waechter.domain.BatteryInfo
+import de.saarmesh.waechter.domain.BatteryProfile
 import de.saarmesh.waechter.domain.Favorite
 import de.saarmesh.waechter.domain.Region
 import de.saarmesh.waechter.domain.RegionResolver
@@ -79,4 +80,6 @@ class DetailViewModel @Inject constructor(
 
     fun setThreshold(hours: Int?) = viewModelScope.launch { repo.setThreshold(pk, hours) }
     fun setNotify(b: Boolean) = viewModelScope.launch { repo.setNotify(pk, b) }
+    fun setBatteryProfile(p: BatteryProfile, lowMv: Int? = null, criticalMv: Int? = null) =
+        viewModelScope.launch { repo.setBatteryProfile(pk, p, lowMv, criticalMv) }
 }
