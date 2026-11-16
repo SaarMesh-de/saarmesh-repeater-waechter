@@ -1,0 +1,80 @@
+--- ausfall.py.bak-20261116-055236-pre-appjson
++++ ausfall.py
+@@ -163,6 +163,10 @@
+         silence = now - lt
+         lo_name = observers.get(loidx, {}).get("name", "?")
+         base = dict(pk=pk, name=n["name"], last=lt, silence=silence, via=lo_name, art=art, n=len(bs))
++        # Fuer repeater.json (App): Position, erste Sichtung, Sichtungen je Stunde/Tag (5-min-Raster)
++        hourly = collections.Counter((b * BUCKET - since) // 3600 for b in bs)
++        base["_pos"], base["_first"] = n["pos"], n["first"]
++        base["_hourly"] = [hourly.get(i, 0) for i in range(DAYS * 24)]
+         if len(bs) < MIN_BUCKETS:
+             base["status"] = "wenig"
+             few.append(base)
+@@ -507,11 +511,66 @@
+     os.replace(p + ".tmp", p)
+ 
+ 
++APP_SCHEMA = 1
++
++
++def export_app(rows, few, now):
++    """Oeffentlicher, schlanker Read-only-Export fuer die Repeater-Waechter-App:
++    /ausfall/repeater.json (Liste) und /ausfall/verlauf/<pk>.json (Sichtungen je Stunde, DAYS Tage).
++    Enthaelt nur, was die Ausfall-Seite ohnehin oeffentlich zeigt (plus Position aus CoreScope)."""
++    since = now - DAYS * 86400
++    out, vdir = [], os.path.join(OUTDIR, "verlauf")
++    os.makedirs(vdir, exist_ok=True)
++    keep = set()
++    for r in rows + few:
++        h = r.get("_hourly") or []
++        daily = [sum(h[d * 24:(d + 1) * 24]) for d in range(DAYS)] if h else []
++        pos = r.get("_pos")
++        e = {"pk": r["pk"], "name": r["name"], "status": r["status"], "last": r["last"],
++             "via": r["via"], "art": r["art"], "n": r["n"],
++             "lat": round(pos[0], 5) if pos else None, "lon": round(pos[1], 5) if pos else None,
++             "first_seen": r.get("_first"), "daily": daily}
++        for k in ("quiet", "down", "g50", "g95"):
++            if k in r:
++                e[k] = int(r[k])
++        if "watching" in r:
++            e["watching"] = r["watching"]
++        if r.get("by_pk"):
++            e["by_pk"], e["by"] = r["by_pk"], r["by"]
++        out.append(e)
++        if h:
++            keep.add(r["pk"] + ".json")
++            p = os.path.join(vdir, r["pk"] + ".json")
++            with open(p + ".tmp", "w", encoding="utf-8") as f:
++                json.dump({"schema": APP_SCHEMA, "pk": r["pk"], "from": since, "step": 3600, "hourly": h}, f,
++                          separators=(",", ":"))
++            os.chmod(p + ".tmp", 0o644)
++            os.replace(p + ".tmp", p)
++    for fn in os.listdir(vdir):                     # Repeater, die aus dem Fenster gefallen sind
++        if fn.endswith(".json") and fn not in keep:
++            try:
++                os.remove(os.path.join(vdir, fn))
++            except OSError:
++                pass
++    doc = {"schema": APP_SCHEMA, "generated": now,
++           "generated_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
++           "window_days": DAYS, "bucket_s": BUCKET, "daily_from": since, "repeaters": out}
++    p = os.path.join(OUTDIR, "repeater.json")
++    with open(p + ".tmp", "w", encoding="utf-8") as f:
++        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
++    os.chmod(p + ".tmp", 0o644)
++    os.replace(p + ".tmp", p)
++
++
+ def main():
+     t0 = time.time()
+     rows, few, now = analyse()
+     render(rows, few, now)
+     export_states(rows, few, now)
++    try:
++        export_app(rows, few, now)
++    except Exception as e:                           # App-Export darf Seite/Alarme nie blockieren
++        print(f"repeater.json fehlgeschlagen: {e}", file=sys.stderr)
+     telegram(rows, now)
+     c = collections.Counter(r["status"] for r in rows)
+     print(f"{len(rows)} bewertet, {len(few)} mit wenig Daten, {dict(c)}, {time.time() - t0:.1f} s")

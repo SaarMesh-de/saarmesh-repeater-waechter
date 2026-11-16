@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Standardsprache Deutsch. Fuer Franzoesisch (SaarLorLux) diese Datei nach values-fr/ kopieren und uebersetzen. -->
+<resources>
+    <string name="app_name">Repeater-Wächter</string>
+    <string name="settings">Einstellungen</string>
+    <string name="back">Zurück</string>
+    <string name="clear">Leeren</string>
+    <string name="save">Speichern</string>
+    <string name="later">Später</string>
+    <string name="allow">Erlauben</string>
+    <string name="favorite">Zu „Meine Repeater“ hinzufügen</string>
+    <string name="unfavorite">Aus „Meine Repeater“ entfernen</string>
+
+    <!-- Status -->
+    <string name="status_online">Online</string>
+    <string name="status_overdue">Überfällig</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_unknown">Unklar</string>
+    <string name="status_replaced">Ersetzt</string>
+    <string name="status_few">Wenig Daten</string>
+    <string name="status_other">Sonstige</string>
+    <string name="status_online_desc">In der üblichen Zeit gesehen.</string>
+    <string name="status_overdue_desc">Stiller als üblich, aber noch unter der Ausfallschwelle.</string>
+    <string name="status_offline_desc">Vermutlich ausgefallen: länger still als die Ausfallschwelle, obwohl die Observer, die ihn sonst hören, Daten liefern.</string>
+    <string name="status_unknown_desc">Lange still, aber die Observer, die ihn sonst hören, sind selbst offline. Ausfall nicht belegbar.</string>
+    <string name="status_replaced_desc">Am gleichen Standort ist eine neue Identität aufgetaucht (neu geflasht oder neuer Schlüssel). Kein Ausfall.</string>
+    <string name="status_few_desc">Zu wenige Sichtungen für eine Bewertung, es wird nur „zuletzt gesehen“ angezeigt.</string>
+
+    <!-- Relative Zeiten -->
+    <string name="ago_now">gerade eben</string>
+    <string name="ago_min">vor %d min</string>
+    <string name="ago_h">vor %d h</string>
+    <plurals name="ago_days">
+        <item quantity="one">vor %d Tag</item>
+        <item quantity="other">vor %d Tagen</item>
+    </plurals>
+    <string name="dur_lt_min">&lt; 1 min</string>
+    <string name="dur_min">%d min</string>
+    <string name="dur_h">%d h</string>
+    <plurals name="dur_days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+    <string name="minutes">%d min</string>
+
+    <!-- Liste -->
+    <string name="search_hint">Repeater suchen …</string>
+    <string name="filter_mine">Meine</string>
+    <string name="filter_region">Region</string>
+    <string name="filter_region_all">Alle Regionen</string>
+    <string name="list_empty">Keine Repeater für diesen Filter.</string>
+    <string name="list_loading">Lade Daten …</string>
+    <string name="data_stand">Datenstand %s · zum Aktualisieren nach unten ziehen</string>
+    <string name="data_none">Noch keine Daten geladen.</string>
+    <string name="data_error">Aktualisierung fehlgeschlagen: %s (zeige zwischengespeicherte Daten)</string>
+    <string name="perm_title">Benachrichtigungen erlauben?</string>
+    <string name="perm_text">Damit die App dich informieren kann, wenn einer deiner Repeater ausfällt oder wieder da ist.</string>
+
+    <!-- Regionen (grobe Zuordnung aus Name und Position) -->
+    <string name="region_sl">Saarland</string>
+    <string name="region_rp">Rheinland-Pfalz</string>
+    <string name="region_lu">Luxemburg</string>
+    <string name="region_lor">Lothringen</string>
+    <string name="region_other">Sonstige</string>
+
+    <!-- Detail -->
+    <string name="detail_not_in_list">Dieser Repeater ist derzeit nicht in der Ausfall-Liste (keine Sichtung in den letzten 21 Tagen oder außerhalb der Region).</string>
+    <string name="detail_position">Position</string>
+    <string name="detail_key">Public Key: %s</string>
+    <string name="osm_attribution">© OpenStreetMap-Mitwirkende</string>
+    <string name="kv_last_seen">Zuletzt gesehen</string>
+    <string name="kv_kind">Art</string>
+    <string name="kv_via">über Observer</string>
+    <string name="kv_region">Region</string>
+    <string name="kv_gap">Übliche / seltene Pause</string>
+    <string name="kv_down_after">Offline ab</string>
+    <string name="kv_custom">(eigener Wert)</string>
+    <string name="replaced_by">Ersetzt durch %s →</string>
+    <string name="alarm_title">Benachrichtigung</string>
+    <string name="alarm_notify">Bei Statuswechsel benachrichtigen</string>
+    <string name="alarm_threshold">Offline nach</string>
+    <string name="alarm_auto">automatisch</string>
+    <string name="alarm_hours">%d h ohne Sichtung</string>
+    <string name="alarm_hint">„Automatisch“ nutzt die Schwelle des Ausfall-Dienstes, die aus den üblichen Pausen dieses Repeaters berechnet wird.</string>
+    <string name="history_title">Verlauf der Sichtungen</string>
+    <string name="history_days">%d Tage</string>
+    <string name="history_hours7">7 Tage stündlich</string>
+    <string name="history_retry">Verlauf konnte nicht geladen werden, erneut versuchen</string>
+    <string name="history_hint">Balkenhöhe = Anteil der 5-Minuten-Fenster mit mindestens einer Sichtung. Rote Striche = keine Sichtung.</string>
+    <string name="links_title">Auf live.saarmesh.de</string>
+    <string name="link_node">Knoten</string>
+    <string name="link_ausfall">Ausfälle</string>
+    <string name="link_relevanz">Relevanz</string>
+    <string name="link_clock">Uhren</string>
+    <string name="link_positionen">Positionen</string>
+    <string name="link_statistik">Statistik</string>
+
+    <!-- Einstellungen -->
+    <string name="set_server">Server</string>
+    <string name="set_server_hint">Standard: https://live.saarmesh.de</string>
+    <string name="set_server_invalid">Bitte eine URL wie https://live.saarmesh.de angeben (ohne Pfad).</string>
+    <string name="set_server_reset">Standard</string>
+    <string name="set_poll">Abruf im Hintergrund</string>
+    <string name="set_poll_hint">Android führt den Abruf frühestens alle 15 Minuten aus, im Energiesparmodus auch später.</string>
+    <string name="set_notify">Benachrichtigungen</string>
+    <string name="set_notify_hint">Bei Ausfall und Rückkehr von „Meine Repeater“.</string>
+    <string name="about_title">Über</string>
+    <string name="about_text">Der Repeater-Wächter liest nur die öffentlichen Daten des SaarMesh-Ausfall-Dienstes (live.saarmesh.de/ausfall/). Er sendet niemals etwas ins MeshCore-Netz und ändert keine Repeater-Einstellungen.</string>
+    <string name="about_version">Version %s</string>
+
+    <!-- Benachrichtigungen -->
+    <string name="channel_status">Repeater-Status</string>
+    <string name="channel_status_desc">Ausfall und Rückkehr deiner Repeater</string>
+    <string name="notif_offline_title">⚠️ %s vermutlich ausgefallen</string>
+    <string name="notif_online_title">✅ %s wieder da</string>
+    <string name="notif_last_seen">Zuletzt gesehen vor %s.</string>
+
+    <!-- Widget -->
+    <string name="widget_title">Meine Repeater</string>
+    <string name="widget_desc">Ampel für deine favorisierten SaarMesh-Repeater</string>
+    <string name="widget_empty">Noch keine Favoriten.</string>
+    <string name="widget_stand">Stand %s</string>
+    <string name="widget_no_data">Noch keine Daten</string>
+</resources>
