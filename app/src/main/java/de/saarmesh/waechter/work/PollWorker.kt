@@ -17,6 +17,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saarmesh.waechter.data.RepeaterRepository
 import de.saarmesh.waechter.data.settings.SettingsRepository
+import de.saarmesh.waechter.domain.BatteryTransitionDetector
 import de.saarmesh.waechter.domain.StatusLogic
 import de.saarmesh.waechter.domain.TransitionDetector
 import de.saarmesh.waechter.notify.Notifier
@@ -60,8 +61,25 @@ class PollWorker @AssistedInject constructor(
             if (t.event != null && fav.notify && notifyOn) notifier.statusChanged(r, t.event, snap.generated)
             if (t.wasDownNow != fav.wasDown) repo.setWasDown(fav.publicKey, t.wasDownNow)
         }
+        checkBatteries(byKey, notifyOn)
         FavoritesWidget().updateAll(applicationContext)
         return Result.success()
+    }
+
+    /** Akku der Favoriten: nur HTTP-Abruf bei CoreScope (max. 1x/h je Repeater), nie eine Mesh-Abfrage. */
+    private suspend fun checkBatteries(byKey: Map<String, de.saarmesh.waechter.domain.Repeater>, notifyOn: Boolean) {
+        val now = System.currentTimeMillis() / 1000
+        for (fav in repo.allFavorites()) {
+            val info = try {
+                repo.refreshBattery(fav.publicKey)
+            } catch (_: Exception) {
+                null
+            } ?: continue
+            val t = BatteryTransitionDetector.detect(fav.batteryLevel, info, now)
+            val name = byKey[fav.publicKey]?.name ?: fav.publicKey.take(8)
+            if (t.event != null && fav.notify && notifyOn) notifier.batteryAlert(fav.publicKey, name, t.event, info.latestMv ?: 0)
+            if (t.levelNow != fav.batteryLevel) repo.setBatteryLevel(fav.publicKey, t.levelNow)
+        }
     }
 
     companion object {

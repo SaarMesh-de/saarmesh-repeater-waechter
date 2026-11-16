@@ -1,0 +1,255 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "07f41506760d124a33ab802e3eb1c10e",
+    "entities": [
+      {
+        "tableName": "repeater",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publicKey` TEXT NOT NULL, `name` TEXT NOT NULL, `serverStatus` TEXT NOT NULL, `lastSeen` INTEGER NOT NULL, `via` TEXT, `art` TEXT, `sightings` INTEGER NOT NULL, `lat` REAL, `lon` REAL, `firstSeen` INTEGER, `quietAfter` INTEGER, `downAfter` INTEGER, `typicalGap` INTEGER, `rareGap` INTEGER, `replacedByKey` TEXT, `replacedByName` TEXT, `daily` TEXT NOT NULL, PRIMARY KEY(`publicKey`))",
+        "fields": [
+          {
+            "fieldPath": "publicKey",
+            "columnName": "publicKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverStatus",
+            "columnName": "serverStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSeen",
+            "columnName": "lastSeen",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "via",
+            "columnName": "via",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "art",
+            "columnName": "art",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sightings",
+            "columnName": "sightings",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lat",
+            "columnName": "lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "lon",
+            "columnName": "lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "firstSeen",
+            "columnName": "firstSeen",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "quietAfter",
+            "columnName": "quietAfter",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "downAfter",
+            "columnName": "downAfter",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "typicalGap",
+            "columnName": "typicalGap",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "rareGap",
+            "columnName": "rareGap",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "replacedByKey",
+            "columnName": "replacedByKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "replacedByName",
+            "columnName": "replacedByName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "daily",
+            "columnName": "daily",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "publicKey"
+          ]
+        }
+      },
+      {
+        "tableName": "favorite",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publicKey` TEXT NOT NULL, `offlineAfterHours` INTEGER, `notify` INTEGER NOT NULL, `wasDown` INTEGER, `label` TEXT, `batteryLevel` TEXT DEFAULT NULL, PRIMARY KEY(`publicKey`))",
+        "fields": [
+          {
+            "fieldPath": "publicKey",
+            "columnName": "publicKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "offlineAfterHours",
+            "columnName": "offlineAfterHours",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "notify",
+            "columnName": "notify",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wasDown",
+            "columnName": "wasDown",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "batteryLevel",
+            "columnName": "batteryLevel",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "publicKey"
+          ]
+        }
+      },
+      {
+        "tableName": "verlauf",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publicKey` TEXT NOT NULL, `fromTs` INTEGER NOT NULL, `step` INTEGER NOT NULL, `values` TEXT NOT NULL, `fetchedAt` INTEGER NOT NULL, PRIMARY KEY(`publicKey`))",
+        "fields": [
+          {
+            "fieldPath": "publicKey",
+            "columnName": "publicKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromTs",
+            "columnName": "fromTs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "step",
+            "columnName": "step",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "values",
+            "columnName": "values",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "publicKey"
+          ]
+        }
+      },
+      {
+        "tableName": "battery",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`publicKey` TEXT NOT NULL, `latestMv` INTEGER, `latestTs` INTEGER, `lowMv` INTEGER NOT NULL, `criticalMv` INTEGER NOT NULL, `samples` TEXT NOT NULL, `fetchedAt` INTEGER NOT NULL, PRIMARY KEY(`publicKey`))",
+        "fields": [
+          {
+            "fieldPath": "publicKey",
+            "columnName": "publicKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latestMv",
+            "columnName": "latestMv",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "latestTs",
+            "columnName": "latestTs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lowMv",
+            "columnName": "lowMv",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "criticalMv",
+            "columnName": "criticalMv",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "samples",
+            "columnName": "samples",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fetchedAt",
+            "columnName": "fetchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "publicKey"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '07f41506760d124a33ab802e3eb1c10e')"
+    ]
+  }
+}

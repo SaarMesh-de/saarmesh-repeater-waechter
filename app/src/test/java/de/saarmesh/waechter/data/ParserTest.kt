@@ -74,4 +74,42 @@ class ParserTest {
         assertEquals("http://10.0.0.5:8080/ausfall/verlauf/abc.json", Endpoints.verlauf("http://10.0.0.5:8080", "ABC"))
         assertEquals("https://live.saarmesh.de/#/nodes/abc", Endpoints.node("https://live.saarmesh.de", "abc"))
     }
+
+    @Test
+    fun parsesBatterySample() {
+        val b = AusfallParser.parseBattery(javaClass.classLoader!!.getResource("battery_sample.json")!!.readText())
+        assertEquals("5000e4b74e1595832ac85f342d5d4fa8752642368786e40801854b0bab3bb891", b.publicKey)
+        assertEquals(4160, b.latestMv)
+        assertEquals(java.time.Instant.parse("2026-11-16T07:40:44Z").epochSecond, b.latestTs)
+        assertEquals(3300, b.lowMv)
+        assertEquals(3000, b.criticalMv)
+        // kaputter Zeitstempel und null-Wert verworfen, Rest sortiert
+        assertEquals(listOf(4200, 4200, 4164, 4160), b.samples.map { it.mv })
+        assertTrue(b.samples.zipWithNext().all { (a, c) -> a.ts <= c.ts })
+        assertTrue(b.hasData)
+    }
+
+    @Test
+    fun parsesBatteryWithoutData() {
+        val b = AusfallParser.parseBattery(
+            """{"days":7,"latest_mv":null,"latest_ts":null,"public_key":"0c4ca55c20de237d305c9a441e07a1f94412397606cf2a071fe20db0244f6feb","samples":[],"status":"unknown","thresholds":{"critical_mv":3000,"low_mv":3300}}""",
+        )
+        assertFalse(b.hasData)
+        assertTrue(b.samples.isEmpty())
+    }
+
+    @Test
+    fun batteryThresholdFallbacks() {
+        val b = AusfallParser.parseBattery("""{"public_key":"ab","latest_mv":3500,"latest_ts":"2026-11-16T07:40:44Z","thresholds":{"low_mv":3300,"critical_mv":3400}}""")
+        assertEquals(3300, b.lowMv)
+        assertTrue("kritisch muss unter schwach liegen", b.criticalMv < b.lowMv)
+        val c = AusfallParser.parseBattery("""{"public_key":"ab"}""")
+        assertEquals(3300, c.lowMv)
+        assertEquals(3000, c.criticalMv)
+    }
+
+    @Test
+    fun batteryEndpoint() {
+        assertEquals("https://live.saarmesh.de/api/nodes/abc/battery?days=30", Endpoints.battery("https://live.saarmesh.de/", "ABC"))
+    }
 }

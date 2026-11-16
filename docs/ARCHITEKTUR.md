@@ -95,14 +95,26 @@ zweite `PushSource` neben dem Polling einhängen. Polling bleibt als Fallback un
 Die Topics sind öffentlich lesbar, das ist unkritisch, denn sie verraten nur, was die Ausfall-Seite
 ohnehin zeigt. Schreibrechte auf Topics nur für den Ausfall-Dienst (ntfy `auth-default-access: read-only`).
 
-## 5. Phase 2: vorbereitet, aber nicht gebaut
+## 5. Akku-Telemetrie (v0.2.0)
 
-- **Telemetrie/Akku:** CoreScope liefert bereits `battery_mv` und `temperature_c` in
-  `/api/nodes/<pk>` (z. B. RoofRPT: 4209 mV, 23 °C), allerdings nur den letzten Wert. Für einen
-  Trend sollte der Ausfall-Dienst (oder ein eigener kleiner Timer) die Werte je Stunde mitschreiben
-  und als `verlauf`-Feld `battery_mv[]` exportieren. Der Remote-Admin über meshcore-mux/meshcore-fleet
-  wird erst nötig, wenn CoreScope keine Werte hat. Er läuft serverseitig, die App bleibt rein lesend.
-  Warnschwellen je Chemie: Li-Ion 3S/1S bzw. LiFePO4 4S.
+**Datenweg:** Repeater → Abfrage-Station eines Betreibers (Telemetrie-Abfrage im Mesh, z. B. per
+Script über den meshcore-mux) → MQTT → CoreScope-Fork (`node_metrics`) →
+`GET /api/nodes/<pk>/battery?days=N` → App. Die App fragt **nie** selbst im Mesh ab.
+
+- CoreScope liefert `latest_mv`, `latest_ts`, `samples[]` und `thresholds` (`low_mv` 3300, `critical_mv` 3000).
+  Ohne Werte: `samples: []`, `status: "unknown"`, die Karte bleibt dann aus. Unbekannter Knoten: 404.
+- Die Antwort ist `no-store`, deshalb drosselt die App selbst: höchstens 1 Abruf pro Stunde je
+  Favorit im Hintergrund, beim Öffnen der Detailansicht höchstens alle 10 Minuten.
+- **Stufen:** OK > schwach (≤ low) > kritisch (≤ critical), mit 100 mV Hysterese beim Erholen.
+- **Benachrichtigung** nur bei Verschlechterung (OK→schwach, →kritisch). Die Erholung wird still
+  gemerkt. Werte älter als 48 h lösen nichts aus.
+- **Trend:** lineare Regression über 7 Tage, angezeigt ab 6 Werten und 24 h Zeitspanne.
+- Stand 16.11.2026: Werte gibt es nur für die Repeater, die das Script des Betreibers abfragt (5 von 871).
+  Mehr Abdeckung bringen verteilte Abfrage-Stationen. Jede fragt nur die Repeater in ihrer
+  Reichweite ab, höchstens stündlich, abgestimmt über eine gemeinsame Liste, damit kein Repeater
+  doppelt abgefragt wird. Jede Station hat einen eigenen MQTT-Login.
+
+## 6. Später
 - **Paten-Modus:** Die vorhandenen Endpunkte `POST /ausfall/api/subscribe {email, pk, consent}`
   und `manage-link` können aus der Detailansicht genutzt werden („Per E-Mail benachrichtigen“).
   Double-Opt-in bleibt beim Server. Das ist der einzige schreibende Aufruf, den die App je machen

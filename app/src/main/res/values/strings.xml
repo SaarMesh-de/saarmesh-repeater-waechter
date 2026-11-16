@@ -97,6 +97,22 @@
     <string name="link_positionen">Positionen</string>
     <string name="link_statistik">Statistik</string>
 
+    <!-- Akku (Werte aus CoreScope) -->
+    <string name="batt_title">Akku</string>
+    <string name="batt_ok">in Ordnung</string>
+    <string name="batt_low">schwach</string>
+    <string name="batt_critical">kritisch</string>
+    <string name="batt_measured">gemessen %s</string>
+    <string name="batt_stale">veraltet, keine Benachrichtigung</string>
+    <string name="batt_trend">Trend: %s mV pro Tag (7 Tage)</string>
+    <string name="batt_trend_stable">Trend: stabil (7 Tage)</string>
+    <string name="batt_trend_none">Trend: noch zu wenige Werte</string>
+    <string name="batt_7d">7 Tage</string>
+    <string name="batt_30d">30 Tage</string>
+    <string name="batt_few">Zu wenige Messwerte in diesem Zeitraum.</string>
+    <string name="batt_thresholds">Warnschwellen (Server): schwach ≤ %1$s, kritisch ≤ %2$s</string>
+    <string name="batt_source">Die Werte fragen Stationen von Repeater-Betreibern ab und melden sie an CoreScope. Die App selbst fragt nichts im Mesh ab.</string>
+
     <!-- Einstellungen -->
     <string name="set_server">Server</string>
     <string name="set_server_hint">Standard: https://live.saarmesh.de</string>
@@ -105,7 +121,7 @@
     <string name="set_poll">Abruf im Hintergrund</string>
     <string name="set_poll_hint">Android führt den Abruf frühestens alle 15 Minuten aus, im Energiesparmodus auch später.</string>
     <string name="set_notify">Benachrichtigungen</string>
-    <string name="set_notify_hint">Bei Ausfall und Rückkehr von „Meine Repeater“.</string>
+    <string name="set_notify_hint">Bei Ausfall, Rückkehr und schwachem Akku von „Meine Repeater“.</string>
     <string name="about_title">Über</string>
     <string name="about_text">Der Repeater-Wächter liest nur die öffentlichen Daten des SaarMesh-Ausfall-Dienstes (live.saarmesh.de/ausfall/). Er sendet niemals etwas ins MeshCore-Netz und ändert keine Repeater-Einstellungen.</string>
     <string name="about_version">Version %s</string>
@@ -116,6 +132,11 @@
     <string name="notif_offline_title">⚠️ %s vermutlich ausgefallen</string>
     <string name="notif_online_title">✅ %s wieder da</string>
     <string name="notif_last_seen">Zuletzt gesehen vor %s.</string>
+    <string name="channel_battery">Akku-Warnungen</string>
+    <string name="channel_battery_desc">Schwacher oder kritischer Akku deiner Repeater</string>
+    <string name="notif_batt_low_title">🔋 %s: Akku schwach</string>
+    <string name="notif_batt_crit_title">🪫 %s: Akku kritisch</string>
+    <string name="notif_batt_text">Aktuell %.2f V</string>
 
     <!-- Widget -->
     <string name="widget_title">Meine Repeater</string>

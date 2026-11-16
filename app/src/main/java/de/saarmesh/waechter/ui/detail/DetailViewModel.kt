@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.saarmesh.waechter.data.RepeaterRepository
 import de.saarmesh.waechter.data.settings.AppSettings
 import de.saarmesh.waechter.data.settings.SettingsRepository
+import de.saarmesh.waechter.domain.BatteryInfo
 import de.saarmesh.waechter.domain.Favorite
 import de.saarmesh.waechter.domain.Region
 import de.saarmesh.waechter.domain.RegionResolver
@@ -31,6 +32,7 @@ data class DetailState(
     val history: SightingHistory? = null,
     val settings: AppSettings? = null,
     val historyError: Boolean = false,
+    val battery: BatteryInfo? = null,
 )
 
 @HiltViewModel
@@ -51,10 +53,15 @@ class DetailViewModel @Inject constructor(
             region = r?.let { RegionResolver.resolve(it.name, it.lat, it.lon) },
             history = h, settings = s, historyError = he,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DetailState(pk = pk))
+    }.combine(repo.battery(pk)) { st, b -> st.copy(battery = b) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DetailState(pk = pk))
 
     init {
         loadHistory()
+        viewModelScope.launch {
+            // Beim Oeffnen frischer als im Hintergrund, aber nicht bei jedem Antippen neu.
+            try { repo.refreshBattery(pk, minAgeS = 600) } catch (_: Exception) { }
+        }
     }
 
     fun loadHistory() = viewModelScope.launch {
