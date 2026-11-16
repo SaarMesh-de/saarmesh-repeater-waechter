@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import de.saarmesh.waechter.R
@@ -40,6 +42,7 @@ import de.saarmesh.waechter.domain.BatteryLevel
 import de.saarmesh.waechter.domain.BatteryLogic
 import de.saarmesh.waechter.domain.BatteryProfile
 import de.saarmesh.waechter.domain.BatteryThresholdLogic
+import de.saarmesh.waechter.domain.VoltageAxisLogic
 import de.saarmesh.waechter.ui.common.agoText
 import java.time.Instant
 import java.time.ZoneId
@@ -60,6 +63,7 @@ private fun volts(mv: Int) = String.format(Locale.GERMANY, "%.2f V", mv / 1000.0
 fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER, onEditProfile: (() -> Unit)? = null) {
     val now = System.currentTimeMillis() / 1000
     val mv = b.latestMv ?: return
+    val hasBattery = profile.hasBattery
     val level = BatteryLogic.level(mv, b.lowMv, b.criticalMv)
     val dark = isSystemInDarkTheme()
     val stale = BatteryLogic.isStale(b, now)
@@ -69,11 +73,14 @@ fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER,
 
     Card {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.batt_title), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(if (hasBattery) R.string.batt_title else R.string.batt_title_supply), style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(volts(mv), style = MaterialTheme.typography.headlineMedium, color = level.color(dark))
-                Spacer(Modifier.width(10.dp))
                 Text(
+                    volts(mv), style = MaterialTheme.typography.headlineMedium,
+                    color = if (hasBattery) level.color(dark) else MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.width(10.dp))
+                if (hasBattery) Text(
                     stringResource(
                         when (level) {
                             BatteryLevel.OK -> R.string.batt_ok
@@ -106,7 +113,7 @@ fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER,
             }
             val shown = b.samples.filter { it.ts >= now - days * 86400L }
             if (shown.size >= 2) {
-                BatteryChart(b, shown, now - days * 86400L, now, stringResource(R.string.batt_title))
+                BatteryChart(b, shown, now - days * 86400L, now, hasBattery, stringResource(R.string.batt_title))
             } else {
                 Text(stringResource(R.string.batt_few), style = MaterialTheme.typography.bodySmall)
             }
@@ -119,7 +126,11 @@ fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER,
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    stringResource(R.string.batt_thresholds, stringResource(profile.label()), volts(b.lowMv), volts(b.criticalMv)),
+                    if (hasBattery) {
+                        stringResource(R.string.batt_thresholds, stringResource(profile.label()), volts(b.lowMv), volts(b.criticalMv))
+                    } else {
+                        stringResource(R.string.batt_no_battery)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -138,21 +149,48 @@ fun BatteryCard(b: BatteryInfo, profile: BatteryProfile = BatteryProfile.SERVER,
 }
 
 @Composable
-private fun BatteryChart(b: BatteryInfo, s: List<de.saarmesh.waechter.domain.BatterySample>, from: Long, to: Long, desc: String) {
+private fun BatteryChart(
+    b: BatteryInfo,
+    s: List<de.saarmesh.waechter.domain.BatterySample>,
+    from: Long,
+    to: Long,
+    showThresholds: Boolean,
+    desc: String,
+) {
     val line = MaterialTheme.colorScheme.primary
+    val grid = MaterialTheme.colorScheme.outlineVariant
+    val labelStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     val dark = isSystemInDarkTheme()
     val lowC = BatteryLevel.LOW.color(dark)
     val critC = BatteryLevel.CRITICAL.color(dark)
-    val minMv = minOf(s.minOf { it.mv }, b.criticalMv) - 100
-    val maxMv = s.maxOf { it.mv } + 100
+    val thresholds = if (showThresholds) listOf(b.lowMv, b.criticalMv) else emptyList()
+    val axis = VoltageAxisLogic.axis(s.map { it.mv }, thresholds)
+    val decimals = if (axis.stepMv % 100 == 0) 1 else 2
+    val measurer = rememberTextMeasurer()
     val fmt = DateTimeFormatter.ofPattern("dd.MM.").withZone(ZoneId.systemDefault())
     Column {
-        Canvas(Modifier.fillMaxWidth().height(140.dp).semantics { contentDescription = desc }) {
-            fun x(ts: Long) = ((ts - from).toFloat() / (to - from)) * size.width
-            fun y(mv: Int) = size.height - ((mv - minMv).toFloat() / (maxMv - minMv)) * size.height
+        Canvas(Modifier.fillMaxWidth().height(160.dp).semantics { contentDescription = desc }) {
+            val labels = axis.ticksMv.map { mv ->
+                measurer.measure(String.format(Locale.GERMANY, "%.${decimals}f", mv / 1000.0), labelStyle)
+            }
+            val gutter = (labels.maxOf { it.size.width } + 6.dp.toPx())
+            val top = labels.first().size.height / 2f
+            val bottom = size.height - labels.first().size.height / 2f
+            val w = size.width - gutter
+            fun x(ts: Long) = gutter + ((ts - from).toFloat() / (to - from)) * w
+            fun y(mv: Int) = bottom - ((mv - axis.minMv).toFloat() / (axis.maxMv - axis.minMv)) * (bottom - top)
+            // Skala + Gitter
+            axis.ticksMv.forEachIndexed { i, mv ->
+                val yy = y(mv)
+                drawLine(grid, Offset(gutter, yy), Offset(size.width, yy), strokeWidth = 1f)
+                val l = labels[i]
+                drawText(l, topLeft = Offset(gutter - 4.dp.toPx() - l.size.width, yy - l.size.height / 2f))
+            }
+            // Schwellen nur, wenn im sichtbaren Bereich
             val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 8f))
-            drawLine(lowC, Offset(0f, y(b.lowMv)), Offset(size.width, y(b.lowMv)), strokeWidth = 2f, pathEffect = dash)
-            drawLine(critC, Offset(0f, y(b.criticalMv)), Offset(size.width, y(b.criticalMv)), strokeWidth = 2f, pathEffect = dash)
+            thresholds.zip(listOf(lowC, critC)).forEach { (mv, c) ->
+                if (mv in axis.minMv..axis.maxMv) drawLine(c, Offset(gutter, y(mv)), Offset(size.width, y(mv)), strokeWidth = 2f, pathEffect = dash)
+            }
             val p = Path()
             s.forEachIndexed { i, smp ->
                 // Luecken > 6 h nicht verbinden (Abfrage-Station war weg)
@@ -160,9 +198,9 @@ private fun BatteryChart(b: BatteryInfo, s: List<de.saarmesh.waechter.domain.Bat
             }
             drawPath(p, line, style = Stroke(width = 4f))
         }
-        Row(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(start = 32.dp)) {
             Text(fmt.format(Instant.ofEpochSecond(from)), style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
-            Text(volts(minMv + 100) + " – " + volts(maxMv - 100), style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.batt_axis_unit), style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
             Text(fmt.format(Instant.ofEpochSecond(to)), style = MaterialTheme.typography.labelSmall)
         }
     }

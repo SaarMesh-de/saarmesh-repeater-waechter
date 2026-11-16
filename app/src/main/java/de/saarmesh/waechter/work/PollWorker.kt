@@ -77,6 +77,10 @@ class PollWorker @AssistedInject constructor(
             } catch (_: Exception) {
                 null
             } ?: continue
+            if (!fav.batteryAlertsEnabled) {
+                if (fav.batteryLevel != null) repo.setBatteryLevel(fav.publicKey, null)
+                continue
+            }
             val eff = info.withThresholds(fav.batteryThresholds(BatteryThresholds(info.lowMv, info.criticalMv)))
             val t = BatteryTransitionDetector.detect(fav.batteryLevel, eff, now)
             val name = byKey[fav.publicKey]?.name ?: fav.publicKey.take(8)
