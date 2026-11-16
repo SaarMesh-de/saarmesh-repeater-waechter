@@ -78,4 +78,6 @@ data class Favorite(
     val notify: Boolean,
     /** Zuletzt gemeldeter Zustand; null = noch nie bewertet. */
     val wasDown: Boolean?,
+    /** Zuletzt bewertete Akku-Stufe; null = keine Werte oder noch nie bewertet. */
+    val batteryLevel: BatteryLevel? = null,
 )

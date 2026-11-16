@@ -1,0 +1,153 @@
+package de.saarmesh.waechter.ui.detail
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import de.saarmesh.waechter.R
+import de.saarmesh.waechter.domain.BatteryInfo
+import de.saarmesh.waechter.domain.BatteryLevel
+import de.saarmesh.waechter.domain.BatteryLogic
+import de.saarmesh.waechter.ui.common.agoText
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.math.abs
+
+fun BatteryLevel.color(dark: Boolean): Color = when (this) {
+    BatteryLevel.OK -> if (dark) Color(0xFF51CF66) else Color(0xFF2F9E44)
+    BatteryLevel.LOW -> if (dark) Color(0xFFFFA94D) else Color(0xFFE67700)
+    BatteryLevel.CRITICAL -> if (dark) Color(0xFFF06595) else Color(0xFFD6336C)
+}
+
+private fun volts(mv: Int) = String.format(Locale.GERMANY, "%.2f V", mv / 1000.0)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BatteryCard(b: BatteryInfo) {
+    val now = System.currentTimeMillis() / 1000
+    val mv = b.latestMv ?: return
+    val level = BatteryLogic.level(mv, b.lowMv, b.criticalMv)
+    val dark = isSystemInDarkTheme()
+    val stale = BatteryLogic.isStale(b, now)
+    val trend = BatteryLogic.trendMvPerDay(b.samples, now)
+    var range by rememberSaveable { mutableIntStateOf(0) }
+    val days = if (range == 0) 7 else 30
+
+    Card {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.batt_title), style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(volts(mv), style = MaterialTheme.typography.headlineMedium, color = level.color(dark))
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    stringResource(
+                        when (level) {
+                            BatteryLevel.OK -> R.string.batt_ok
+                            BatteryLevel.LOW -> R.string.batt_low
+                            BatteryLevel.CRITICAL -> R.string.batt_critical
+                        },
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+            }
+            Text(
+                stringResource(R.string.batt_measured, agoText(now - (b.latestTs ?: now))) +
+                    if (stale) " · " + stringResource(R.string.batt_stale) else "",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (stale) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                when {
+                    trend == null -> stringResource(R.string.batt_trend_none)
+                    abs(trend) < 10 -> stringResource(R.string.batt_trend_stable)
+                    else -> stringResource(R.string.batt_trend, String.format(Locale.GERMANY, "%+.0f", trend))
+                },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                listOf(stringResource(R.string.batt_7d), stringResource(R.string.batt_30d)).forEachIndexed { i, l ->
+                    SegmentedButton(selected = range == i, onClick = { range = i }, shape = SegmentedButtonDefaults.itemShape(i, 2)) { Text(l) }
+                }
+            }
+            val shown = b.samples.filter { it.ts >= now - days * 86400L }
+            if (shown.size >= 2) {
+                BatteryChart(b, shown, now - days * 86400L, now, stringResource(R.string.batt_title))
+            } else {
+                Text(stringResource(R.string.batt_few), style = MaterialTheme.typography.bodySmall)
+            }
+            Text(
+                stringResource(R.string.batt_thresholds, volts(b.lowMv), volts(b.criticalMv)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(R.string.batt_source),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BatteryChart(b: BatteryInfo, s: List<de.saarmesh.waechter.domain.BatterySample>, from: Long, to: Long, desc: String) {
+    val line = MaterialTheme.colorScheme.primary
+    val dark = isSystemInDarkTheme()
+    val lowC = BatteryLevel.LOW.color(dark)
+    val critC = BatteryLevel.CRITICAL.color(dark)
+    val minMv = minOf(s.minOf { it.mv }, b.criticalMv) - 100
+    val maxMv = s.maxOf { it.mv } + 100
+    val fmt = DateTimeFormatter.ofPattern("dd.MM.").withZone(ZoneId.systemDefault())
+    Column {
+        Canvas(Modifier.fillMaxWidth().height(140.dp).semantics { contentDescription = desc }) {
+            fun x(ts: Long) = ((ts - from).toFloat() / (to - from)) * size.width
+            fun y(mv: Int) = size.height - ((mv - minMv).toFloat() / (maxMv - minMv)) * size.height
+            val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 8f))
+            drawLine(lowC, Offset(0f, y(b.lowMv)), Offset(size.width, y(b.lowMv)), strokeWidth = 2f, pathEffect = dash)
+            drawLine(critC, Offset(0f, y(b.criticalMv)), Offset(size.width, y(b.criticalMv)), strokeWidth = 2f, pathEffect = dash)
+            val p = Path()
+            s.forEachIndexed { i, smp ->
+                // Luecken > 6 h nicht verbinden (Abfrage-Station war weg)
+                if (i == 0 || smp.ts - s[i - 1].ts > 6 * 3600) p.moveTo(x(smp.ts), y(smp.mv)) else p.lineTo(x(smp.ts), y(smp.mv))
+            }
+            drawPath(p, line, style = Stroke(width = 4f))
+        }
+        Row(Modifier.fillMaxWidth()) {
+            Text(fmt.format(Instant.ofEpochSecond(from)), style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+            Text(volts(minMv + 100) + " – " + volts(maxMv - 100), style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
+            Text(fmt.format(Instant.ofEpochSecond(to)), style = MaterialTheme.typography.labelSmall)
+        }
+    }
+}

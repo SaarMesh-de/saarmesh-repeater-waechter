@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.saarmesh.waechter.MainActivity
 import de.saarmesh.waechter.R
+import de.saarmesh.waechter.domain.BatteryEvent
 import de.saarmesh.waechter.domain.Repeater
 import de.saarmesh.waechter.domain.StatusEvent
 import de.saarmesh.waechter.ui.common.formatDuration
@@ -30,11 +31,45 @@ class Notifier @Inject constructor(@param:ApplicationContext private val ctx: Co
                 description = ctx.getString(R.string.channel_status_desc)
             },
         )
+        nm.createNotificationChannel(
+            NotificationChannel(CH_BATTERY, ctx.getString(R.string.channel_battery), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = ctx.getString(R.string.channel_battery_desc)
+            },
+        )
     }
 
     fun canNotify(): Boolean =
         Build.VERSION.SDK_INT < 33 ||
             ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+    fun batteryAlert(pk: String, name: String, event: BatteryEvent, mv: Int) {
+        if (!canNotify()) return
+        val title = when (event) {
+            BatteryEvent.BecameLow -> ctx.getString(R.string.notif_batt_low_title, name)
+            BatteryEvent.BecameCritical -> ctx.getString(R.string.notif_batt_crit_title, name)
+        }
+        val text = ctx.getString(R.string.notif_batt_text, mv / 1000.0)
+        val n = NotificationCompat.Builder(ctx, CH_BATTERY)
+            .setSmallIcon(R.drawable.ic_stat_battery)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setContentIntent(openDetail(pk))
+            .setAutoCancel(true)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .build()
+        try {
+            NotificationManagerCompat.from(ctx).notify(("batt" + pk).hashCode(), n)
+        } catch (_: SecurityException) {
+        }
+    }
+
+    private fun openDetail(pk: String): PendingIntent {
+        val intent = Intent(ctx, MainActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(MainActivity.EXTRA_PK, pk)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        return PendingIntent.getActivity(ctx, pk.hashCode(), intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     fun statusChanged(r: Repeater, event: StatusEvent, referenceTime: Long) {
         if (!canNotify()) return
@@ -67,5 +102,6 @@ class Notifier @Inject constructor(@param:ApplicationContext private val ctx: Co
 
     companion object {
         const val CH_STATUS = "status"
+        const val CH_BATTERY = "battery"
     }
 }

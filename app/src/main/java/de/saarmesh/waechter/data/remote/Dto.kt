@@ -1,5 +1,8 @@
 package de.saarmesh.waechter.data.remote
 
+import de.saarmesh.waechter.domain.BatteryInfo
+import de.saarmesh.waechter.domain.BatteryLogic
+import de.saarmesh.waechter.domain.BatterySample
 import de.saarmesh.waechter.domain.Repeater
 import de.saarmesh.waechter.domain.RepeaterSnapshot
 import de.saarmesh.waechter.domain.ServerStatus
@@ -50,6 +53,53 @@ data class VerlaufDto(
     val hourly: List<Int> = emptyList(),
 )
 
+/** CoreScope /api/nodes/<pk>/battery?days=N */
+@Serializable
+data class BatteryDto(
+    @SerialName("public_key") val publicKey: String,
+    @SerialName("latest_mv") val latestMv: Int? = null,
+    @SerialName("latest_ts") val latestTs: String? = null,
+    val status: String? = null,
+    val thresholds: ThresholdsDto? = null,
+    val samples: List<BatterySampleDto> = emptyList(),
+)
+
+@Serializable
+data class ThresholdsDto(
+    @SerialName("low_mv") val lowMv: Int? = null,
+    @SerialName("critical_mv") val criticalMv: Int? = null,
+)
+
+@Serializable
+data class BatterySampleDto(val timestamp: String, @SerialName("battery_mv") val batteryMv: Int? = null)
+
+/** ISO-8601 (z. B. 2026-11-16T07:40:44Z) nach Unix-Sekunden; null bei Unsinn. */
+fun parseIso(s: String?): Long? = try {
+    s?.let { java.time.Instant.parse(it).epochSecond }
+} catch (_: Exception) {
+    null
+}
+
+fun BatteryDto.toDomain(): BatteryInfo {
+    val low = thresholds?.lowMv?.takeIf { it > 0 } ?: BatteryLogic.DEFAULT_LOW_MV
+    val crit = thresholds?.criticalMv?.takeIf { it in 1 until low } ?: minOf(BatteryLogic.DEFAULT_CRITICAL_MV, low - 1)
+    val samples = this.samples.mapNotNull { s ->
+        val ts = parseIso(s.timestamp)
+        val mv = s.batteryMv?.takeIf { it in 1..60000 }
+        if (ts != null && mv != null) BatterySample(ts, mv) else null
+    }.sortedBy { it.ts }
+    val ts = parseIso(latestTs)
+    val mv = latestMv?.takeIf { it in 1..60000 }
+    return BatteryInfo(
+        publicKey = publicKey.lowercase(),
+        latestMv = if (ts != null) mv else null,
+        latestTs = if (mv != null) ts else null,
+        lowMv = low,
+        criticalMv = crit,
+        samples = samples,
+    )
+}
+
 object AusfallParser {
     /** Schemaversion, die diese App versteht. Hoehere Versionen sind abwaertskompatibel (nur neue Felder). */
     const val SUPPORTED_SCHEMA = 1
@@ -62,6 +112,7 @@ object AusfallParser {
 
     fun parseList(text: String): RepeaterSnapshot = json.decodeFromString<RepeaterListDto>(text).toDomain()
     fun parseVerlauf(text: String): SightingHistory = json.decodeFromString<VerlaufDto>(text).toDomain()
+    fun parseBattery(text: String): BatteryInfo = json.decodeFromString<BatteryDto>(text).toDomain()
 }
 
 fun RepeaterListDto.toDomain(): RepeaterSnapshot {

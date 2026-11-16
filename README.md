@@ -22,6 +22,9 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
   Relevanz, Uhren, Positionen und Statistik
 - **Benachrichtigungen** bei Ausfall und Rückkehr favorisierter Repeater, Schwellwert pro
   Repeater („automatisch“ = Schwelle des Ausfall-Dienstes, oder 2–72 h)
+- **Akku** (ab v0.2.0): Spannung, Verlauf über 7 bzw. 30 Tage, Trend in mV/Tag und Warnschwellen,
+  sofern CoreScope Werte für den Repeater hat. Benachrichtigung bei „schwach“ und „kritisch“ für
+  Favoriten (mit Hysterese, damit Solar-Tagesgänge nicht dauernd melden)
 - **Widget** (Jetpack Glance): Ampel für die Favoriten
 - **Offline-Cache** (Room), Material 3 mit dynamischen Farben und Dark Mode
 - Server-URL einstellbar (Standard `https://live.saarmesh.de`)
@@ -32,6 +35,7 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
 |---|---|
 | `https://live.saarmesh.de/ausfall/repeater.json` | Status aller Repeater (alle 15 min neu) |
 | `https://live.saarmesh.de/ausfall/verlauf/<pk>.json` | Sichtungen je Stunde, 21 Tage |
+| `https://live.saarmesh.de/api/nodes/<pk>/battery?days=30` | Akku-Verlauf (CoreScope), nur für Favoriten bzw. die geöffnete Detailansicht, höchstens 1× pro Stunde |
 | `https://live.saarmesh.de/#/nodes/<pk>` und Unterseiten | Deeplinks |
 | OpenStreetMap-Tiles | Karte |
 
@@ -70,8 +74,9 @@ Lokal geht es alternativ über eine nicht eingecheckte `keystore.properties`
 ## Roadmap
 
 **Phase 2**
-- Akkuspannung und Telemetrie mit Trend und Warnschwelle (CoreScope liefert `battery_mv` bereits,
-  der Verlauf muss serverseitig gesammelt werden)
+- Mehr Repeater mit Akku-Werten: verteilte Abfrage-Stationen der Betreiber, die ihre erreichbaren
+  Repeater abfragen und an CoreScope melden (siehe `docs/ARCHITEKTUR.md`)
+- Eigene Warnschwellen pro Repeater (z. B. für LiFePO4-Packs)
 - Paten-Modus: Repeater per E-Mail abonnieren über das bestehende Abo von `/ausfall/`
 - Echtes Server-Push über ntfy (self-hosted) und UnifiedPush statt Polling, ohne Google-Dienste
 - Französische Oberfläche (SaarLorLux)

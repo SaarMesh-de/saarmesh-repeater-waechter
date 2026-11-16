@@ -9,6 +9,8 @@ import de.saarmesh.waechter.data.remote.AusfallApi
 import de.saarmesh.waechter.data.remote.AusfallParser
 import de.saarmesh.waechter.data.remote.Endpoints
 import de.saarmesh.waechter.data.settings.SettingsRepository
+import de.saarmesh.waechter.domain.BatteryInfo
+import de.saarmesh.waechter.domain.BatteryLevel
 import de.saarmesh.waechter.domain.Favorite
 import de.saarmesh.waechter.domain.Repeater
 import de.saarmesh.waechter.domain.RepeaterSnapshot
@@ -19,6 +21,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
+const val BATTERY_MIN_AGE_S = 3600L
 
 @Singleton
 class RepeaterRepository @Inject constructor(
@@ -56,6 +60,34 @@ class RepeaterRepository @Inject constructor(
         val h = AusfallParser.parseVerlauf(text)
         db.verlauf().upsert(VerlaufEntity(pk, h.from, h.stepSeconds, h.values, System.currentTimeMillis() / 1000))
     }
+
+    fun battery(pk: String): Flow<BatteryInfo?> = db.battery().observe(pk).map { it?.toDomain() }
+    val batteries: Flow<Map<String, BatteryInfo>> =
+        db.battery().observeAll().map { l -> l.associate { it.publicKey to it.toDomain() } }
+
+    /**
+     * Holt den Akku-Verlauf aus CoreScope, aber hoechstens alle [minAgeS] Sekunden je Repeater
+     * (die Werte kommen ohnehin nur etwa stuendlich). 404 = Knoten unbekannt, dann null.
+     */
+    suspend fun refreshBattery(pk: String, minAgeS: Long = BATTERY_MIN_AGE_S): BatteryInfo? = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis() / 1000
+        val cached = db.battery().get(pk)
+        if (cached != null && now - cached.fetchedAt < minAgeS) return@withContext cached.toDomain()
+        val resp = api.getResponse(Endpoints.battery(settings.current().serverUrl, pk))
+        if (resp.code() == 404) {
+            resp.errorBody()?.close()
+            return@withContext null
+        }
+        if (!resp.isSuccessful) {
+            resp.errorBody()?.close()
+            throw java.io.IOException("HTTP ${resp.code()}")
+        }
+        val info = resp.body()!!.use { AusfallParser.parseBattery(it.string()) }
+        db.battery().upsert(info.toEntity(now))
+        info
+    }
+
+    suspend fun setBatteryLevel(pk: String, level: BatteryLevel?) = db.favorites().setBatteryLevel(pk, level?.name)
 
     suspend fun setFavorite(pk: String, favorite: Boolean, label: String?) {
         if (favorite) {

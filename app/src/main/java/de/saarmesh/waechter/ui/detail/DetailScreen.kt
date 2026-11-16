@@ -102,6 +102,7 @@ fun DetailScreen(onBack: () -> Unit, onOpen: (String) -> Unit, vm: DetailViewMod
             }
             StatusCard(st, r, onOpen)
             if (st.favorite != null) AlarmCard(st, vm)
+            st.battery?.takeIf { it.hasData }?.let { BatteryCard(it) }
             HistoryCard(st, r, vm)
             if (r.lat != null && r.lon != null) {
                 Card {
