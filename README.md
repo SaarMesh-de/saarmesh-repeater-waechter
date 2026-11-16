@@ -1,99 +1,108 @@
 # SaarMesh Repeater-Wächter
 
-Android-App zur Überwachung der Repeater im **SaarMesh**-Netz (MeshCore, LoRa 869,618 MHz,
-Region SaarLorLux): Statusübersicht, Homescreen-Widget und Benachrichtigung bei Ausfall.
+Der Repeater-Wächter ist eine Android-App für alle, die im **SaarMesh** (MeshCore, LoRa auf 869,618 MHz,
+Region SaarLorLux) einen Repeater betreiben oder betreuen. Sie zeigt dir auf einen Blick, welche Repeater
+gerade erreichbar sind, und meldet sich, wenn einer deiner Repeater ausfällt oder sein Akku schwach wird.
 
-Die App **liest nur**. Sie sendet niemals etwas ins Mesh und ändert keine Repeater-Einstellungen.
-Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/ausfall/](https://live.saarmesh.de/ausfall/).
+Die App liest nur öffentliche Daten von [live.saarmesh.de](https://live.saarmesh.de). Sie sendet nichts ins
+Mesh und ändert keine Einstellungen an Repeatern.
+
+## Funktionen
+
+- **Repeater-Liste** mit Suche und Filtern (Status, Region, „Meine“), Anzeige „zuletzt gesehen vor …“
+- **Meine Repeater:** Du markierst die Repeater, die dich interessieren, mit einem Stern.
+- **Detailansicht:** Status mit Erklärung, Verlauf der letzten Wochen, Karte und Links zu den passenden
+  Seiten auf live.saarmesh.de
+- **Benachrichtigungen,** wenn einer deiner Repeater ausfällt und wenn er wieder da ist. Ab wann ein
+  Repeater als ausgefallen gilt, kannst du pro Repeater einstellen.
+- **Akku-Anzeige,** sofern für den Repeater Akkuwerte vorliegen: aktuelle Spannung, Verlauf, Trend und
+  eine Warnung bei schwachem Akku. Den Akku-Typ (Li-Ion, LiFePO4, Inhero MR2, Netzteil oder eigene
+  Schwellen) stellst du pro Repeater ein.
+- **Widget** für den Startbildschirm mit einer Ampel für deine Repeater
+- funktioniert auch ohne Netz mit den zuletzt geladenen Daten, mit hellem und dunklem Design
 
 ## Screenshots
 
-| Akku-Verlauf (Li-Ion, Solar) | Hinweis bei unpassendem Akku-Typ |
+| Akku-Verlauf eines Solar-Repeaters | Hinweis bei unpassendem Akku-Typ |
 |---|---|
-| <img src="docs/screenshots/detail-akku-liion.jpg" width="300" alt="Detailansicht DE-SL-66127-1 mit Akku-Verlauf"> | <img src="docs/screenshots/detail-akku-hinweis.jpg" width="300" alt="Detailansicht DE-SL-66127-2 mit Plausibilitätshinweis"> |
+| <img src="docs/screenshots/detail-akku-liion.jpg" width="300" alt="Detailansicht mit Akku-Verlauf"> | <img src="docs/screenshots/detail-akku-hinweis.jpg" width="300" alt="Detailansicht mit Hinweis zum Akku-Typ"> |
 
-Weitere Screenshots (Liste, Widget) folgen.
+Screenshots der Liste und des Widgets folgen.
 
-## Funktionen (Phase 1)
+## Installation
 
-- **Repeater-Liste** mit Suche, Filter nach Status (online / überfällig / offline / sonstige),
-  Region (grob) und „Meine“, relativer Zeit („vor 3 h“), Pull-to-refresh
-- **Meine Repeater**: frei wählbare Favoriten (★), anfangs leer, jeder wählt seine eigenen Repeater
-- **Detailansicht**: Status mit Erklärung, übliche Pausen und Ausfallschwelle, Sichtungsverlauf
-  (21 Tage täglich bzw. 7 Tage stündlich), OSM-Karte (osmdroid), Links auf Knoten, Ausfälle,
-  Relevanz, Uhren, Positionen und Statistik
-- **Benachrichtigungen** bei Ausfall und Rückkehr favorisierter Repeater, Schwellwert pro
-  Repeater („automatisch“ = Schwelle des Ausfall-Dienstes, oder 2–72 h)
-- **Akku** (ab v0.2.0): Spannung, Verlauf über 7 bzw. 30 Tage, Trend in mV/Tag und Warnschwellen,
-  sofern CoreScope Werte für den Repeater hat. Benachrichtigung bei „schwach“ und „kritisch“ für
-  Favoriten (mit Hysterese, damit Solar-Tagesgänge nicht dauernd melden)
-- **Akku-Typ pro Repeater** (ab v0.3.0): Li-Ion (schwach ≤ 3,50 V, kritisch ≤ 3,30 V), LiFePO4
-  (≤ 3,10 V / ≤ 2,90 V), Server-Standard (3,30 / 3,00 V), eigene Werte oder „Kein Akku
-  (Netzteil)“ – dann nur Anzeige der Versorgungsspannung, keine Akku-Warnungen.
-- **Inhero MR2** (ab v0.3.2): Das Board meldet seinen Ladestand als Li-Ion-Ersatzspannung
-  (100 % = 4,20 V). Mit dem Typ „Inhero MR2 (Ladestand)“ zeigt die App wieder den Ladestand in Prozent,
-  Schwellen 25 % / 10 %.
-- Passt ein Messwert nicht zum gewählten Akku-Typ, zeigt die App ihn neutral als „nicht bewertbar“ an
-  und warnt nicht. Mit Hinweis, wenn die
-  gemeldete Spannung nicht zum Typ passt (z. B. 4,16 V bei LiFePO4 → Board misst etwas anderes)
-- **Widget** (Jetpack Glance): Ampel für die Favoriten
-- **Offline-Cache** (Room), Material 3 mit dynamischen Farben und Dark Mode
-- Server-URL einstellbar (Standard `https://live.saarmesh.de`)
+Voraussetzung ist ein Android-Gerät ab **Android 8.0**. Google-Dienste brauchst du nicht.
 
-## Datenquellen
+1. Öffne die Seite [Releases](https://github.com/SaarMesh-de/saarmesh-repeater-waechter/releases/latest)
+   und lade die Datei `repeater-waechter-vX.Y.Z.apk` herunter.
+2. Öffne die Datei auf dem Handy. Android fragt beim ersten Mal, ob dein Browser oder Dateimanager Apps
+   installieren darf. Erlaube das für diese Installation.
+3. Für ein Update lädst du die neue APK genauso herunter und installierst sie über die alte Version.
+   Deine Einstellungen und Favoriten bleiben dabei erhalten.
 
-| URL | Zweck |
+## Benutzung
+
+1. **Repeater auswählen:** Tippe in der Liste auf den Stern neben deinen Repeatern. Sie stehen dann oben
+   in der Liste, im Filter „Meine“ und im Widget.
+2. **Benachrichtigungen erlauben:** Die App fragt beim Start danach (ab Android 13). Ohne diese Erlaubnis
+   gibt es keine Meldungen bei Ausfall oder schwachem Akku.
+3. **Schwelle für „offline“ einstellen (optional):** Öffne einen Repeater. Unter „Offline nach“ wählst
+   du „automatisch“ oder eine feste Zeit. „Automatisch“ richtet sich nach den üblichen Pausen dieses
+   Repeaters und passt für die meisten Fälle.
+4. **Akku-Typ einstellen (optional):** Wenn die Detailansicht eines deiner Repeater eine Akku-Karte zeigt,
+   tippe dort auf „Ändern“ und wähle den passenden Typ. Bei einem Repeater am Netzteil wählst du
+   „Kein Akku“.
+5. **Widget hinzufügen:** Lange auf den Startbildschirm tippen → Widgets → Repeater-Wächter →
+   „Meine Repeater“.
+6. **Einstellungen:** Dort legst du fest, wie oft die App im Hintergrund nachsieht (ab 15 Minuten).
+   Außerdem kannst du alle Benachrichtigungen abschalten.
+
+**Was bedeuten die Farben?**
+
+| Farbe | Status |
 |---|---|
-| `https://live.saarmesh.de/ausfall/repeater.json` | Status aller Repeater (alle 15 min neu) |
-| `https://live.saarmesh.de/ausfall/verlauf/<pk>.json` | Sichtungen je Stunde, 21 Tage |
-| `https://live.saarmesh.de/api/nodes/<pk>/battery?days=30` | Akku-Verlauf (CoreScope), nur für Favoriten bzw. die geöffnete Detailansicht, höchstens 1× pro Stunde |
-| `https://live.saarmesh.de/#/nodes/<pk>` und Unterseiten | Deeplinks |
-| OpenStreetMap-Tiles | Karte |
+| grün | online, in der üblichen Zeit gesehen |
+| orange | überfällig, länger still als üblich |
+| rot | offline, vermutlich ausgefallen |
+| blau | unklar, weil die Empfangsstationen in der Nähe selbst gerade keine Daten liefern |
+| grau | ersetzt (neu geflasht) oder zu wenige Daten |
 
-Wie „zuletzt gesehen“ und die Schwellen berechnet werden (jede Sichtung, nicht nur Adverts,
-Schwellen aus den üblichen Pausen, Observer-Ausfall-Erkennung), steht auf der Ausfall-Seite unter
-„Wie wird gerechnet?“. Format und Server-Änderung: [`server/README.md`](server/README.md).
-Architektur, Statuslogik und Push-Strategie: [`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md).
+Wie live.saarmesh.de den Status berechnet, steht auf der Seite
+[Repeater-Ausfälle](https://live.saarmesh.de/ausfall/) unter „Wie wird gerechnet?“.
 
-## Build
+**Warum hat mein Repeater keine Akku-Anzeige?** Repeater senden ihre Akkuspannung nicht von sich aus.
+Jemand muss sie gezielt abfragen und an live.saarmesh.de weitergeben. Liegen für einen Repeater keine
+Werte vor, bleibt die Akku-Karte einfach weg.
 
-Voraussetzungen: JDK 17 oder neuer, Android SDK (Platform 36). Pfad in `local.properties`:
+## Datenschutz
 
-```properties
-sdk.dir=/pfad/zum/Android/sdk
-```
+- Die App ruft nur öffentliche Daten von **live.saarmesh.de** ab: die Liste der Repeater mit ihrem Status,
+  den Sichtungsverlauf eines Repeaters und, für deine Favoriten, die Akkuwerte.
+- Für die Karte lädt sie Kartenkacheln von **OpenStreetMap**.
+- Die App hat **kein Konto, keine Werbung und kein Tracking**. Deine Favoriten und Einstellungen bleiben auf
+  deinem Gerät.
+- Die App kann nichts ins Mesh senden. Sie hat keinen Zugriff auf Bluetooth, USB oder dein Funkgerät.
+- Die Server-Adresse kannst du in den Einstellungen ändern. Standard ist `https://live.saarmesh.de`.
 
-```bash
-./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
-./gradlew testDebugUnitTest    # Unit-Tests (Statuslogik, Statuswechsel, Parser, Filter)
-```
+## Lizenz und Kontakt
 
-Die Debug-Variante hat die App-ID `de.saarmesh.waechter.debug` und lässt sich parallel zur
-Release-Version installieren.
+Die App steht unter der [MIT-Lizenz](LICENSE).
 
-### Release
+Fragen, Fehler oder Ideen: Melde dich über [saarmesh.de](https://saarmesh.de) oder öffne ein
+[Issue](https://github.com/SaarMesh-de/saarmesh-repeater-waechter/issues).
 
-Ein Tag `v*` (z. B. `v0.1.0`) startet den Workflow `.github/workflows/android.yml`. Er baut die
-Release-APK und hängt sie an ein GitHub-Release. Signiert wird nur, wenn diese Repository-Secrets
-gesetzt sind, sonst entsteht eine unsignierte APK:
+Wenn du an der App mitarbeiten möchtest, findest du alles Nötige in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-`SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`
+---
 
-Lokal geht es alternativ über eine nicht eingecheckte `keystore.properties`
-(`storeFile`, `storePassword`, `keyAlias`, `keyPassword`). Es gehören keine Secrets ins Repo.
+### English summary
 
-## Roadmap
+**SaarMesh Repeater-Wächter** ("repeater watcher") is an Android app for operators of repeaters in the
+SaarMesh MeshCore network (LoRa, 869.618 MHz, Saarland, Lorraine and Luxembourg). It shows which repeaters
+are currently reachable. It notifies you when one of your repeaters goes offline, comes back, or runs low
+on battery. A home-screen widget shows a traffic light for your repeaters. The app only reads public data
+from [live.saarmesh.de](https://live.saarmesh.de) and never transmits anything into the mesh.
 
-**Phase 2**
-- Mehr Repeater mit Akku-Werten: verteilte Abfrage-Stationen der Betreiber, die ihre erreichbaren
-  Repeater abfragen und an CoreScope melden (siehe `docs/ARCHITEKTUR.md`)
-- Paten-Modus: Repeater per E-Mail abonnieren über das bestehende Abo von `/ausfall/`
-- Echtes Server-Push über ntfy (self-hosted) und UnifiedPush statt Polling, ohne Google-Dienste
-- Französische Oberfläche (SaarLorLux)
-
-**Später**
-- Wear-OS-Kachel, Karte aller Repeater, Export der Favoriten
-
-## Lizenz
-
-MIT
+Install it from the [latest release](https://github.com/SaarMesh-de/saarmesh-repeater-waechter/releases/latest)
+(APK, Android 8.0 or later, no Google services required). The app is currently available in German only.
+A French version is planned.

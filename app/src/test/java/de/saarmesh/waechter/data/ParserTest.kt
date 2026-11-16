@@ -19,25 +19,25 @@ class ParserTest {
         assertEquals(21, snap.windowDays)
         // Eintrag mit ungueltigem Key wird verworfen
         assertEquals(6, snap.repeaters.size)
-        val cycas = snap.repeaters.first { it.publicKey.startsWith("0c4ca55c") }
-        assertEquals("📶 Cycas Rep SB", cycas.name)
-        assertEquals(ServerStatus.AKTIV, cycas.serverStatus)
-        assertEquals(21, cycas.daily.size)
-        assertEquals(10800L, cycas.quietAfter)
-        assertEquals(21600L, cycas.downAfter)
-        assertEquals(49.21848, cycas.lat!!, 1e-9)
+        val first = snap.repeaters.first { it.publicKey.startsWith("11111111") }
+        assertEquals("📶 Test Rep Saarbrücken", first.name)
+        assertEquals(ServerStatus.AKTIV, first.serverStatus)
+        assertEquals(21, first.daily.size)
+        assertEquals(10800L, first.quietAfter)
+        assertEquals(21600L, first.downAfter)
+        assertEquals(49.21848, first.lat!!, 1e-9)
     }
 
     @Test
     fun replacedAndFewData() {
         val snap = AusfallParser.parseList(sample())
-        val igel = snap.repeaters.first { it.publicKey.startsWith("20876491") }
-        assertEquals(ServerStatus.ERSETZT, igel.serverStatus)
-        assertEquals("06406a7181baee4758e3cc76f9e54ae9fb10fbaf49c2910b4d063d02830d8a08", igel.replacedByKey)
-        val olewig = snap.repeaters.first { it.publicKey.startsWith("93e219be") }
-        assertEquals(ServerStatus.WENIG, olewig.serverStatus)
-        assertNull(olewig.downAfter)
-        assertNull(olewig.quietAfter)
+        val replaced = snap.repeaters.first { it.publicKey.startsWith("44444444") }
+        assertEquals(ServerStatus.ERSETZT, replaced.serverStatus)
+        assertEquals("6666666666666666666666666666666666666666666666666666666666666666", replaced.replacedByKey)
+        val few = snap.repeaters.first { it.publicKey.startsWith("55555555") }
+        assertEquals(ServerStatus.WENIG, few.serverStatus)
+        assertNull(few.downAfter)
+        assertNull(few.quietAfter)
     }
 
     @Test
@@ -92,7 +92,7 @@ class ParserTest {
     @Test
     fun parsesBatteryWithoutData() {
         val b = AusfallParser.parseBattery(
-            """{"days":7,"latest_mv":null,"latest_ts":null,"public_key":"0c4ca55c20de237d305c9a441e07a1f94412397606cf2a071fe20db0244f6feb","samples":[],"status":"unknown","thresholds":{"critical_mv":3000,"low_mv":3300}}""",
+            """{"days":7,"latest_mv":null,"latest_ts":null,"public_key":"1111111111111111111111111111111111111111111111111111111111111111","samples":[],"status":"unknown","thresholds":{"critical_mv":3000,"low_mv":3300}}""",
         )
         assertFalse(b.hasData)
         assertTrue(b.samples.isEmpty())

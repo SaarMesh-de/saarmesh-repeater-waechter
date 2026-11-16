@@ -12,3 +12,19 @@
 *.keystore
 *.jks
 keystore.properties
+
+# Signatur und Zugangsdaten
+*.p12
+*.pem
+.env
+.env.*
+
+# Build-Ergebnisse und Logs
+*.apk
+*.aab
+/app/release/
+*.log
+*.hprof
+
+# Editoren
+.vscode/
