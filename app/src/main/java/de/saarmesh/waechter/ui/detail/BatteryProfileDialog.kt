@@ -73,6 +73,11 @@ fun BatteryProfileDialog(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                                Text(
+                                    stringResource(R.string.bprof_inhero_note),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             } else if (p.lowMv != null) {
                                 Text(
                                     stringResource(R.string.bprof_values, v(p.lowMv), v(p.criticalMv)),
