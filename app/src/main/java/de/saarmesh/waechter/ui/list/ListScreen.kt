@@ -100,8 +100,9 @@ fun ListScreen(onOpen: (String) -> Unit, onSettings: () -> Unit, vm: ListViewMod
                     )
                 }
                 item { Filters(st, vm) }
+                if (st.loaded && st.favoriteCount == 0) item { NoFavoritesHint() }
                 item { DataAge(st, now) }
-                if (st.items.isEmpty()) {
+                if (st.items.isEmpty() && !(st.filter.onlyFavorites && st.favoriteCount == 0)) {
                     item {
                         Text(
                             stringResource(if (st.loaded) R.string.list_empty else R.string.list_loading),
@@ -202,6 +203,24 @@ private fun RepeaterRow(item: RepeaterItem, now: Long, onClick: () -> Unit, onSt
                 Icon(Icons.Filled.Star, stringResource(R.string.unfavorite), tint = MaterialTheme.colorScheme.primary)
             } else {
                 Icon(Icons.Outlined.StarOutline, stringResource(R.string.favorite))
+            }
+        }
+    }
+}
+
+/** Erststart: Es gibt keine vorbelegten Favoriten, jeder waehlt seine Repeater selbst. */
+@Composable
+private fun NoFavoritesHint() {
+    Card(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.StarOutline, null)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(stringResource(R.string.no_fav_title), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.no_fav_text), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

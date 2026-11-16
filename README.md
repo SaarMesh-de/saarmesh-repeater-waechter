@@ -16,8 +16,7 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
 
 - **Repeater-Liste** mit Suche, Filter nach Status (online / überfällig / offline / sonstige),
   Region (grob) und „Meine“, relativer Zeit („vor 3 h“), Pull-to-refresh
-- **Meine Repeater**: frei wählbare Favoriten, vorbelegt mit SaarMesh.de RoofRPT, DE-SL-66127-1,
-  DE-SL-66127-2 und Saarmesh.de Observer
+- **Meine Repeater**: frei wählbare Favoriten (★), anfangs leer, jeder wählt seine eigenen Repeater
 - **Detailansicht**: Status mit Erklärung, übliche Pausen und Ausfallschwelle, Sichtungsverlauf
   (21 Tage täglich bzw. 7 Tage stündlich), OSM-Karte (osmdroid), Links auf Knoten, Ausfälle,
   Relevanz, Uhren, Positionen und Statistik
