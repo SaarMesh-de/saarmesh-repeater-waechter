@@ -119,9 +119,10 @@
     <string name="bprof_none">Kein Akku (Netzteil/USB)</string>
     <string name="bprof_inhero">Inhero MR2 (Ladestand)</string>
     <string name="bprof_inhero_values">schwach ≤ 25 %, kritisch ≤ 10 % Ladestand</string>
+    <string name="bprof_inhero_note">Nur wählen, wenn die gemeldete Spannung der Ersatzwert des Boards ist (bis 4,20 V). Meldet die Abfrage-Station schon die echte Zellspannung, z. B. das Home-Assistant-Add-on ab 1.5.1-sm.21, wähle den Akku-Typ der Zellen, etwa LiFePO4.</string>
     <string name="batt_title_soc">Akku (Ladestand)</string>
     <string name="batt_soc_reported">gemeldet als %s (Li-Ion-Ersatzwert)</string>
-    <string name="batt_soc_explain">Das Inhero MR2 meldet nicht die echte Zellspannung, sondern seinen Ladestand umgerechnet in die Spannung einer Li-Ion-Zelle (100 % = 4,20 V). Die App rechnet das zurück. Die echte Spannung zeigt am Board „get board.telem“.</string>
+    <string name="batt_soc_explain">Das Inhero MR2 meldet im Status nicht die echte Zellspannung, sondern seinen Ladestand umgerechnet in die Spannung einer Li-Ion-Zelle (100 % = 4,20 V). Die App rechnet das zurück. Kommt hier bereits die echte Zellspannung an (z. B. LiFePO4 um 3,3 V), stimmt der Ladestand nicht: Wähle dann unter „Ändern“ den Akku-Typ der Zellen.</string>
     <string name="batt_trend_soc">Trend: %s %% pro Tag (7 Tage)</string>
     <string name="batt_axis_soc">Ladestand</string>
     <string name="batt_not_assessable">nicht bewertbar</string>

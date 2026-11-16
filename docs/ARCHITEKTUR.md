@@ -62,7 +62,9 @@ lösen ebenfalls nichts aus. Wer die Schwelle ändert, bekommt durch die Umstell
   (Li-Ion 4,25 V, LiFePO4 3,65 V), zeigt die App den Wert als „nicht bewertbar“ an und warnt nicht.
 - **Inhero MR2:** Dieses Board meldet als Akkuspannung seinen Ladestand, umgerechnet auf eine
   Li-Ion-Kennlinie (100 % = 4,20 V). Mit dem Typ „Inhero MR2 (Ladestand)“ rechnet die App das mit
-  derselben Tabelle wie die Firmware in Prozent zurück.
+  derselben Tabelle wie die Firmware in Prozent zurück. Liest die Abfrage-Station stattdessen den
+  Akku-Kanal des Boards aus (z. B. das Home-Assistant-Add-on ab 1.5.1-sm.21), kommt die echte
+  Zellspannung an. Dann passt der Akku-Typ der Zellen, etwa LiFePO4, und nicht „Inhero MR2“.
 - **Trend:** lineare Regression über 7 Tage, ab 6 Messwerten und mindestens 24 Stunden Zeitspanne.
 
 ## Region
