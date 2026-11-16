@@ -44,8 +44,8 @@ sealed interface StatusEvent {
 data class Transition(val event: StatusEvent?, val wasDownNow: Boolean)
 
 /**
- * Erkennt Wechsel online <-> offline. Gleiche Semantik wie die Telegram-Meldung des
- * Ausfall-Dienstes: "wieder da" erst, wenn der Repeater wieder online/ueberfaellig ist;
+ * Erkennt Wechsel online <-> offline, wie die Ausfall-Meldungen von live.saarmesh.de:
+ * "wieder da" erst, wenn der Repeater wieder online/ueberfaellig ist;
  * unklare Zustaende (Observer fehlen, ersetzt, zu wenig Daten) loesen nichts aus und
  * lassen den gemerkten Zustand unveraendert.
  */

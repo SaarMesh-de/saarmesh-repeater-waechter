@@ -6,23 +6,23 @@ import org.junit.Test
 class RegionAndFormatTest {
     @Test fun regionFromNamePrefix() {
         assertEquals(Region.SAARLAND, RegionResolver.resolve("DE-SL-66127-1", null, null))
-        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("DE-RP-DAU-OBSERVER-2-1", null, null))
-        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("DE-RLP-54295 Olewig", null, null))
-        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("LX7JC - Observer", null, null))
-        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("LX-MQTT-HeLe-Observer", null, null))
+        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("DE-RP-TEST-OBSERVER-1", null, null))
+        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("DE-RLP-54295 Testort", null, null))
+        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("LX9AA - Observer", null, null))
+        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("LX-MQTT-Test-Observer", null, null))
     }
 
     @Test fun regionFromPostalCode() {
-        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("D-54298 Igel Rep. V4", null, null))
-        assertEquals(Region.SAARLAND, RegionResolver.resolve("D-66111 Irgendwas", null, null))
+        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("D-54298 Testort Rep", null, null))
+        assertEquals(Region.SAARLAND, RegionResolver.resolve("D-66111 Testort", null, null))
     }
 
     @Test fun regionFromPosition() {
         assertEquals(Region.SAARLAND, RegionResolver.resolve("SaarMesh.de RoofRPT", 49.23091, 6.88944))
-        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("Bascharage Observer MNL", 49.567, 5.91))
-        assertEquals(Region.LOTHRINGEN, RegionResolver.resolve("Metz Repeater", 49.119, 6.175))
-        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("Trier Rep", 49.75, 6.64))
-        assertEquals(Region.SONSTIGE, RegionResolver.resolve("Hausach Repeater4", 48.339, 8.153))
+        assertEquals(Region.LUXEMBURG, RegionResolver.resolve("Observer Luxemburg", 49.567, 5.91))
+        assertEquals(Region.LOTHRINGEN, RegionResolver.resolve("Repeater Metz", 49.119, 6.175))
+        assertEquals(Region.RHEINLAND_PFALZ, RegionResolver.resolve("Repeater Trier", 49.75, 6.64))
+        assertEquals(Region.SONSTIGE, RegionResolver.resolve("Repeater Schwarzwald", 48.339, 8.153))
         assertEquals(Region.SONSTIGE, RegionResolver.resolve("ohne Position", null, null))
     }
 

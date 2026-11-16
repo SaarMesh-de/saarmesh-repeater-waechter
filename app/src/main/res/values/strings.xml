@@ -125,7 +125,7 @@
     <string name="batt_trend_soc">Trend: %s %% pro Tag (7 Tage)</string>
     <string name="batt_axis_soc">Ladestand</string>
     <string name="batt_not_assessable">nicht bewertbar</string>
-    <string name="batt_implausible">%1$s passt nicht zu %2$s (voll max. %3$s). Vermutlich misst das Board eine andere Spannung, z. B. die des Ladereglers. Bei Inhero-MR2-Boards den Typ „Inhero MR2 (Ladestand)“ wählen, sonst „Eigene Werte“. Bis dahin keine Akku-Warnungen.</string>
+    <string name="batt_implausible">%1$s ist für %2$s zu hoch (voll höchstens %3$s). Das Board meldet hier wohl eine andere Spannung. Wähle einen passenden Akku-Typ, z. B. „Inhero MR2 (Ladestand)“ oder „Eigene Werte“. Bis dahin gibt es keine Akku-Warnungen.</string>
     <string name="bprof_title">Akku-Typ</string>
     <string name="bprof_server">Server-Standard</string>
     <string name="bprof_liion">Li-Ion (3,6 V)</string>
@@ -148,7 +148,7 @@
     <string name="set_notify">Benachrichtigungen</string>
     <string name="set_notify_hint">Bei Ausfall, Rückkehr und schwachem Akku von „Meine Repeater“.</string>
     <string name="about_title">Über</string>
-    <string name="about_text">Der Repeater-Wächter liest nur die öffentlichen Daten des SaarMesh-Ausfall-Dienstes (live.saarmesh.de/ausfall/). Er sendet niemals etwas ins MeshCore-Netz und ändert keine Repeater-Einstellungen.</string>
+    <string name="about_text">Der Repeater-Wächter liest nur öffentliche Daten von live.saarmesh.de. Er sendet niemals etwas ins MeshCore-Netz und ändert keine Repeater-Einstellungen. Fragen und Hinweise: saarmesh.de</string>
     <string name="about_version">Version %s</string>
 
     <!-- Benachrichtigungen -->
