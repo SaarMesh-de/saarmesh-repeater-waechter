@@ -117,7 +117,15 @@
     <string name="batt_no_battery">Kein Akku (Netzteil): keine Akku-Warnungen</string>
     <string name="batt_axis_unit">Volt</string>
     <string name="bprof_none">Kein Akku (Netzteil/USB)</string>
-    <string name="batt_implausible">%1$s passt nicht zu %2$s (voll max. %3$s). Vermutlich misst das Board eine andere Spannung, z. B. die des Ladereglers. Dann besser „Eigene Werte“ passend zur gemeldeten Spannung wählen.</string>
+    <string name="bprof_inhero">Inhero MR2 (Ladestand)</string>
+    <string name="bprof_inhero_values">schwach ≤ 25 %, kritisch ≤ 10 % Ladestand</string>
+    <string name="batt_title_soc">Akku (Ladestand)</string>
+    <string name="batt_soc_reported">gemeldet als %s (Li-Ion-Ersatzwert)</string>
+    <string name="batt_soc_explain">Das Inhero MR2 meldet nicht die echte Zellspannung, sondern seinen Ladestand umgerechnet in die Spannung einer Li-Ion-Zelle (100 % = 4,20 V). Die App rechnet das zurück. Die echte Spannung zeigt am Board „get board.telem“.</string>
+    <string name="batt_trend_soc">Trend: %s %% pro Tag (7 Tage)</string>
+    <string name="batt_axis_soc">Ladestand</string>
+    <string name="batt_not_assessable">nicht bewertbar</string>
+    <string name="batt_implausible">%1$s passt nicht zu %2$s (voll max. %3$s). Vermutlich misst das Board eine andere Spannung, z. B. die des Ladereglers. Bei Inhero-MR2-Boards den Typ „Inhero MR2 (Ladestand)“ wählen, sonst „Eigene Werte“. Bis dahin keine Akku-Warnungen.</string>
     <string name="bprof_title">Akku-Typ</string>
     <string name="bprof_server">Server-Standard</string>
     <string name="bprof_liion">Li-Ion (3,6 V)</string>

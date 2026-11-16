@@ -16,7 +16,15 @@ enum class BatteryProfile(val lowMv: Int?, val criticalMv: Int?, val maxPlausibl
     CUSTOM(null, null, null),
     /** Kein Akku, Netzteil/USB: Spannung wird nur angezeigt, keine Akku-Warnungen. */
     NONE(null, null, null),
+    /**
+     * Inhero MR2: gemeldeter Wert ist der Ladestand als Li-Ion-Ersatzspannung
+     * (siehe [InheroSoc]). Schwellen 25 % / 10 % Ladestand.
+     */
+    INHERO_MR2(3490, 3300, 4250),
     ;
+
+    /** Anzeige als Ladestand in Prozent statt als Spannung. */
+    val showsSoc: Boolean get() = this == INHERO_MR2
 
     /** Akku-Stufen und Benachrichtigungen nur fuer echte Akkus. */
     val hasBattery: Boolean get() = this != NONE
@@ -51,6 +59,12 @@ object BatteryThresholdLogic {
             else -> BatteryThresholds(profile.lowMv!!, profile.criticalMv!!)
         }
 
+    /**
+     * Akku-Stufe und Benachrichtigung sind nur sinnvoll, wenn ein Akku verbaut ist und der
+     * Messwert zum gewaehlten Typ passt. Sonst: "nicht bewertbar", keine Warnungen.
+     */
+    fun assessable(profile: BatteryProfile, mv: Int?): Boolean = profile.hasBattery && !implausible(profile, mv)
+
     /** true, wenn der Messwert nicht zum gewaehlten Akku-Typ passen kann (z. B. 4,16 V bei LiFePO4). */
     fun implausible(profile: BatteryProfile, mv: Int?): Boolean {
         val max = profile.maxPlausibleMv ?: return false
@@ -71,21 +85,35 @@ data class VoltageAxis(val minMv: Int, val maxMv: Int, val ticksMv: List<Int>, v
 
 object VoltageAxisLogic {
     private val STEPS = listOf(10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000)
+    private val SOC_STEPS = listOf(1, 2, 5, 10, 20, 25)
 
     /**
      * Bereich aus den Messwerten; Schwellen werden nur einbezogen, wenn sie nahe am
      * Verlauf liegen (sonst wuerde der Verlauf zu einem Strich zusammengedrueckt).
      */
-    fun axis(values: List<Int>, thresholds: List<Int> = emptyList(), nearMv: Int = 300): VoltageAxis {
+    fun axis(values: List<Int>, thresholds: List<Int> = emptyList(), nearMv: Int = 300): VoltageAxis =
+        axis(values, thresholds, nearMv, STEPS, minSpan = 40, bounds = null)
+
+    /** Achse fuer Ladestand in Prozent (0..100). */
+    fun socAxis(values: List<Int>, thresholds: List<Int> = emptyList()): VoltageAxis =
+        axis(values, thresholds, near = 15, steps = SOC_STEPS, minSpan = 4, bounds = 0..100)
+
+    private fun axis(values: List<Int>, thresholds: List<Int>, near: Int, steps: List<Int>, minSpan: Int, bounds: IntRange?): VoltageAxis {
         require(values.isNotEmpty())
         var lo = values.min()
         var hi = values.max()
-        thresholds.filter { it >= lo - nearMv && it <= hi + nearMv }.forEach { lo = minOf(lo, it); hi = maxOf(hi, it) }
-        if (hi - lo < 40) { lo -= 20; hi += 20 }
+        thresholds.filter { it >= lo - near && it <= hi + near }.forEach { lo = minOf(lo, it); hi = maxOf(hi, it) }
+        if (hi - lo < minSpan) { lo -= minSpan / 2; hi += minSpan / 2 }
+        if (bounds != null) {
+            if (lo < bounds.first) { hi += bounds.first - lo; lo = bounds.first }
+            if (hi > bounds.last) { lo -= hi - bounds.last; hi = bounds.last }
+            lo = lo.coerceAtLeast(bounds.first)
+        }
         val span = hi - lo
-        val step = STEPS.firstOrNull { span / it <= 4 } ?: STEPS.last()
-        val min = Math.floorDiv(lo, step) * step
-        val max = -Math.floorDiv(-hi, step) * step
+        val step = steps.firstOrNull { span / it <= 4 } ?: steps.last()
+        var min = Math.floorDiv(lo, step) * step
+        var max = -Math.floorDiv(-hi, step) * step
+        if (bounds != null) { min = min.coerceAtLeast(bounds.first); max = max.coerceAtMost(bounds.last) }
         val ticks = (min..max step step).toList()
         return VoltageAxis(min, max, ticks, step)
     }

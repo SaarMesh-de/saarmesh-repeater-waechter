@@ -77,7 +77,7 @@ class PollWorker @AssistedInject constructor(
             } catch (_: Exception) {
                 null
             } ?: continue
-            if (!fav.batteryAlertsEnabled) {
+            if (!fav.batteryAssessable(info.latestMv)) {
                 if (fav.batteryLevel != null) repo.setBatteryLevel(fav.publicKey, null)
                 continue
             }

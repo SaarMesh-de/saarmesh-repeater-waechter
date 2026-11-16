@@ -33,6 +33,7 @@ fun BatteryProfile.label(): Int = when (this) {
     BatteryProfile.LIFEPO4 -> R.string.bprof_lifepo4
     BatteryProfile.CUSTOM -> R.string.bprof_custom
     BatteryProfile.NONE -> R.string.bprof_none
+    BatteryProfile.INHERO_MR2 -> R.string.bprof_inhero
 }
 
 private fun v(mv: Int?) = mv?.let { String.format(Locale.GERMANY, "%.2f", it / 1000.0) } ?: ""
@@ -66,7 +67,13 @@ fun BatteryProfileDialog(
                         RadioButton(selected = sel == p, onClick = { sel = p })
                         Column {
                             Text(stringResource(p.label()))
-                            if (p.lowMv != null) {
+                            if (p.showsSoc) {
+                                Text(
+                                    stringResource(R.string.bprof_inhero_values),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            } else if (p.lowMv != null) {
                                 Text(
                                     stringResource(R.string.bprof_values, v(p.lowMv), v(p.criticalMv)),
                                     style = MaterialTheme.typography.bodySmall,

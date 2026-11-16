@@ -8,9 +8,11 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
 
 ## Screenshots
 
-| Liste | Detail | Widget |
-|---|---|---|
-| _folgt_ | _folgt_ | _folgt_ |
+| Akku-Verlauf (Li-Ion, Solar) | Hinweis bei unpassendem Akku-Typ |
+|---|---|
+| <img src="docs/screenshots/detail-akku-liion.jpg" width="300" alt="Detailansicht DE-SL-66127-1 mit Akku-Verlauf"> | <img src="docs/screenshots/detail-akku-hinweis.jpg" width="300" alt="Detailansicht DE-SL-66127-2 mit Plausibilitätshinweis"> |
+
+Weitere Screenshots (Liste, Widget) folgen.
 
 ## Funktionen (Phase 1)
 
@@ -27,7 +29,12 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
   Favoriten (mit Hysterese, damit Solar-Tagesgänge nicht dauernd melden)
 - **Akku-Typ pro Repeater** (ab v0.3.0): Li-Ion (schwach ≤ 3,50 V, kritisch ≤ 3,30 V), LiFePO4
   (≤ 3,10 V / ≤ 2,90 V), Server-Standard (3,30 / 3,00 V), eigene Werte oder „Kein Akku
-  (Netzteil)“ – dann nur Anzeige der Versorgungsspannung, keine Akku-Warnungen. Mit Hinweis, wenn die
+  (Netzteil)“ – dann nur Anzeige der Versorgungsspannung, keine Akku-Warnungen.
+- **Inhero MR2** (ab v0.3.2): Das Board meldet seinen Ladestand als Li-Ion-Ersatzspannung
+  (100 % = 4,20 V). Mit dem Typ „Inhero MR2 (Ladestand)“ zeigt die App wieder den Ladestand in Prozent,
+  Schwellen 25 % / 10 %.
+- Passt ein Messwert nicht zum gewählten Akku-Typ, zeigt die App ihn neutral als „nicht bewertbar“ an
+  und warnt nicht. Mit Hinweis, wenn die
   gemeldete Spannung nicht zum Typ passt (z. B. 4,16 V bei LiFePO4 → Board misst etwas anderes)
 - **Widget** (Jetpack Glance): Ampel für die Favoriten
 - **Offline-Cache** (Room), Material 3 mit dynamischen Farben und Dark Mode
