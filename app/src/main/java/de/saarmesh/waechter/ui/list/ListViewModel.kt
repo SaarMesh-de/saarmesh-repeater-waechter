@@ -45,6 +45,7 @@ data class ListState(
     val refreshing: Boolean = false,
     val error: String? = null,
     val loaded: Boolean = false,
+    val favoriteCount: Int = 0,
 )
 
 fun RepeaterStatus.toFilter(): StatusFilter = when (this) {
@@ -94,22 +95,20 @@ class ListViewModel @Inject constructor(
             val f = fav[r.publicKey]
             RepeaterItem(r, StatusLogic.evaluate(r, s.lastGenerated, f?.offlineAfterHours), RegionResolver.resolve(r.name, r.lat, r.lon), f != null)
         }
-        items to s
+        Triple(items, s, favs.size)
     }
 
-    val state: StateFlow<ListState> = combine(all, filter, refreshing, error) { (items, s), f, rf, err ->
+    val state: StateFlow<ListState> = combine(all, filter, refreshing, error) { (items, s, favCount), f, rf, err ->
         ListState(
             items = applyFilter(items, f),
             counts = items.groupingBy { it.status.toFilter() }.eachCount(),
             filter = f, settings = s, refreshing = rf, error = err, loaded = s.lastFetch > 0,
+            favoriteCount = favCount,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ListState())
 
     init {
-        viewModelScope.launch {
-            repo.seedFavoritesIfFirstRun()
-            refresh()
-        }
+        refresh()
     }
 
     fun refresh() {

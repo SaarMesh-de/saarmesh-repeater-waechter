@@ -20,16 +20,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Vorbelegte "Meine Repeater" (Public Keys aus live.saarmesh.de). */
-object DefaultFavorites {
-    val ALL = listOf(
-        "1f869d80948dcb3274a235acbe4739235ce8c2144bfd3ff08e9ec0a737d80152" to "SaarMesh.de RoofRPT",
-        "f9d7a6928b2cec4a6ef517c582141dfa05d04fd3a2ef184d82b0f56f4fc9ac8b" to "DE-SL-66127-1",
-        "5000e4b74e1595832ac85f342d5d4fa8752642368786e40801854b0bab3bb891" to "DE-SL-66127-2",
-        "955b4f831e56ab552c4c01551aac54d25ae624d34ac7a4927d4fd6e0203bec21" to "Saarmesh.de Observer",
-    )
-}
-
 @Singleton
 class RepeaterRepository @Inject constructor(
     private val api: AusfallApi,
@@ -44,12 +34,6 @@ class RepeaterRepository @Inject constructor(
     fun favorite(pk: String): Flow<Favorite?> = db.favorites().observe(pk).map { it?.toDomain() }
     fun history(pk: String): Flow<SightingHistory?> =
         db.verlauf().observe(pk).map { v -> v?.let { SightingHistory(it.publicKey, it.fromTs, it.step, it.values) } }
-
-    suspend fun seedFavoritesIfFirstRun() {
-        if (settings.consumeSeedFlag()) {
-            db.favorites().upsertAll(DefaultFavorites.ALL.map { (pk, name) -> FavoriteEntity(pk, null, true, null, name) })
-        }
-    }
 
     /** Laedt repeater.json und ersetzt den Cache. Wirft bei Netz- oder Formatfehlern. */
     suspend fun refresh(): RepeaterSnapshot = withContext(Dispatchers.IO) {

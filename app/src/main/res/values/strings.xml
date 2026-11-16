@@ -49,6 +49,8 @@
     <string name="filter_region">Region</string>
     <string name="filter_region_all">Alle Regionen</string>
     <string name="list_empty">Keine Repeater für diesen Filter.</string>
+    <string name="no_fav_title">Wähle deine Repeater</string>
+    <string name="no_fav_text">Tippe auf ★ bei einem Repeater, um ihn zu beobachten. Dann bekommst du eine Benachrichtigung bei Ausfall und Rückkehr und siehst ihn im Widget.</string>
     <string name="list_loading">Lade Daten …</string>
     <string name="data_stand">Datenstand %s · zum Aktualisieren nach unten ziehen</string>
     <string name="data_none">Noch keine Daten geladen.</string>
@@ -118,7 +120,7 @@
     <!-- Widget -->
     <string name="widget_title">Meine Repeater</string>
     <string name="widget_desc">Ampel für deine favorisierten SaarMesh-Repeater</string>
-    <string name="widget_empty">Noch keine Favoriten.</string>
+    <string name="widget_empty">Noch keine Repeater ausgewählt. In der App auf ★ tippen.</string>
     <string name="widget_stand">Stand %s</string>
     <string name="widget_no_data">Noch keine Daten</string>
 </resources>

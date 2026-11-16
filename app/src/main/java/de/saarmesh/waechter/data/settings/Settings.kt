@@ -35,7 +35,6 @@ class SettingsRepository @Inject constructor(@param:ApplicationContext private v
         val server = stringPreferencesKey("server_url")
         val poll = intPreferencesKey("poll_minutes")
         val notify = booleanPreferencesKey("notifications_enabled")
-        val seeded = booleanPreferencesKey("favorites_seeded")
         val generated = longPreferencesKey("last_generated")
         val fetch = longPreferencesKey("last_fetch")
         val error = stringPreferencesKey("last_error")
@@ -66,17 +65,6 @@ class SettingsRepository @Inject constructor(@param:ApplicationContext private v
 
     suspend fun markError(msg: String) = context.dataStore.edit { it[K.error] = msg }
 
-    /** true genau einmal: beim ersten Start, um die Standard-Favoriten anzulegen. */
-    suspend fun consumeSeedFlag(): Boolean {
-        var first = false
-        context.dataStore.edit {
-            if (it[K.seeded] != true) {
-                first = true
-                it[K.seeded] = true
-            }
-        }
-        return first
-    }
 
     companion object {
         const val DEFAULT_POLL_MINUTES = 15
