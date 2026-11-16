@@ -84,6 +84,9 @@ data class Favorite(
     val batteryLowMv: Int? = null,
     val batteryCriticalMv: Int? = null,
 ) {
+    /** Akku-Benachrichtigungen nur, wenn ein Akku verbaut ist. */
+    val batteryAlertsEnabled: Boolean get() = batteryProfile.hasBattery
+
     /** Wirksame Akku-Schwellen fuer diesen Favoriten. */
     fun batteryThresholds(server: BatteryThresholds) =
         BatteryThresholdLogic.effective(server, batteryProfile, batteryLowMv, batteryCriticalMv)

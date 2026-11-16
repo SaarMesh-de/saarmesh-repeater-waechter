@@ -113,6 +113,10 @@
     <string name="batt_few">Zu wenige Messwerte in diesem Zeitraum.</string>
     <string name="batt_thresholds">Schwellen (%1$s): schwach ≤ %2$s, kritisch ≤ %3$s</string>
     <string name="batt_change">Ändern</string>
+    <string name="batt_title_supply">Versorgungsspannung</string>
+    <string name="batt_no_battery">Kein Akku (Netzteil): keine Akku-Warnungen</string>
+    <string name="batt_axis_unit">Volt</string>
+    <string name="bprof_none">Kein Akku (Netzteil/USB)</string>
     <string name="batt_implausible">%1$s passt nicht zu %2$s (voll max. %3$s). Vermutlich misst das Board eine andere Spannung, z. B. die des Ladereglers. Dann besser „Eigene Werte“ passend zur gemeldeten Spannung wählen.</string>
     <string name="bprof_title">Akku-Typ</string>
     <string name="bprof_server">Server-Standard</string>

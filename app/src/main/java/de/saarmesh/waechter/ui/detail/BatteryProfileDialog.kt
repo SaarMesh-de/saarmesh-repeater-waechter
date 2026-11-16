@@ -32,6 +32,7 @@ fun BatteryProfile.label(): Int = when (this) {
     BatteryProfile.LI_ION -> R.string.bprof_liion
     BatteryProfile.LIFEPO4 -> R.string.bprof_lifepo4
     BatteryProfile.CUSTOM -> R.string.bprof_custom
+    BatteryProfile.NONE -> R.string.bprof_none
 }
 
 private fun v(mv: Int?) = mv?.let { String.format(Locale.GERMANY, "%.2f", it / 1000.0) } ?: ""

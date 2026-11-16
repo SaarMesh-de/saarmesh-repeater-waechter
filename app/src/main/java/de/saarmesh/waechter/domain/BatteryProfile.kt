@@ -14,7 +14,12 @@ enum class BatteryProfile(val lowMv: Int?, val criticalMv: Int?, val maxPlausibl
     LIFEPO4(3100, 2900, 3650),
     /** Eigene Werte. */
     CUSTOM(null, null, null),
+    /** Kein Akku, Netzteil/USB: Spannung wird nur angezeigt, keine Akku-Warnungen. */
+    NONE(null, null, null),
     ;
+
+    /** Akku-Stufen und Benachrichtigungen nur fuer echte Akkus. */
+    val hasBattery: Boolean get() = this != NONE
 
     companion object {
         fun parse(s: String?): BatteryProfile = entries.firstOrNull { it.name == s } ?: SERVER
@@ -40,7 +45,7 @@ object BatteryThresholdLogic {
      */
     fun effective(server: BatteryThresholds, profile: BatteryProfile, customLowMv: Int?, customCriticalMv: Int?): BatteryThresholds =
         when (profile) {
-            BatteryProfile.SERVER -> server
+            BatteryProfile.SERVER, BatteryProfile.NONE -> server
             BatteryProfile.CUSTOM ->
                 if (isValid(customLowMv, customCriticalMv)) BatteryThresholds(customLowMv!!, customCriticalMv!!) else server
             else -> BatteryThresholds(profile.lowMv!!, profile.criticalMv!!)
@@ -58,6 +63,31 @@ object BatteryThresholdLogic {
         val d = t.toDoubleOrNull() ?: return null
         val mv = if (d < 100) Math.round(d * 1000).toInt() else Math.round(d).toInt()
         return mv.takeIf { it in BatteryProfile.MIN_MV..BatteryProfile.MAX_MV }
+    }
+}
+
+/** Achsen-Skala fuer Spannungsdiagramme: runde Schritte, 3 bis 6 Teilstriche. */
+data class VoltageAxis(val minMv: Int, val maxMv: Int, val ticksMv: List<Int>, val stepMv: Int)
+
+object VoltageAxisLogic {
+    private val STEPS = listOf(10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000)
+
+    /**
+     * Bereich aus den Messwerten; Schwellen werden nur einbezogen, wenn sie nahe am
+     * Verlauf liegen (sonst wuerde der Verlauf zu einem Strich zusammengedrueckt).
+     */
+    fun axis(values: List<Int>, thresholds: List<Int> = emptyList(), nearMv: Int = 300): VoltageAxis {
+        require(values.isNotEmpty())
+        var lo = values.min()
+        var hi = values.max()
+        thresholds.filter { it >= lo - nearMv && it <= hi + nearMv }.forEach { lo = minOf(lo, it); hi = maxOf(hi, it) }
+        if (hi - lo < 40) { lo -= 20; hi += 20 }
+        val span = hi - lo
+        val step = STEPS.firstOrNull { span / it <= 4 } ?: STEPS.last()
+        val min = Math.floorDiv(lo, step) * step
+        val max = -Math.floorDiv(-hi, step) * step
+        val ticks = (min..max step step).toList()
+        return VoltageAxis(min, max, ticks, step)
     }
 }
 

@@ -26,7 +26,8 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
   sofern CoreScope Werte für den Repeater hat. Benachrichtigung bei „schwach“ und „kritisch“ für
   Favoriten (mit Hysterese, damit Solar-Tagesgänge nicht dauernd melden)
 - **Akku-Typ pro Repeater** (ab v0.3.0): Li-Ion (schwach ≤ 3,50 V, kritisch ≤ 3,30 V), LiFePO4
-  (≤ 3,10 V / ≤ 2,90 V), Server-Standard (3,30 / 3,00 V) oder eigene Werte. Mit Hinweis, wenn die
+  (≤ 3,10 V / ≤ 2,90 V), Server-Standard (3,30 / 3,00 V), eigene Werte oder „Kein Akku
+  (Netzteil)“ – dann nur Anzeige der Versorgungsspannung, keine Akku-Warnungen. Mit Hinweis, wenn die
   gemeldete Spannung nicht zum Typ passt (z. B. 4,16 V bei LiFePO4 → Board misst etwas anderes)
 - **Widget** (Jetpack Glance): Ampel für die Favoriten
 - **Offline-Cache** (Room), Material 3 mit dynamischen Farben und Dark Mode
