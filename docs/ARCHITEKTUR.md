@@ -115,6 +115,16 @@ Script über den meshcore-mux) → MQTT → CoreScope-Fork (`node_metrics`) →
   zurück. Ein Wechsel setzt die gemerkte Stufe zurück, damit die Umstellung selbst keinen Alarm auslöst.
   Plausibilität: Liegt der Messwert mehr als 100 mV über dem Vollladewert des Typs (Li-Ion 4,25 V,
   LiFePO4 3,65 V), zeigt die App einen Hinweis.
+- **Inhero MR2 (v0.3.2):** Die MR2-Firmware gibt in `getBattMilliVolts()` nicht die Zellspannung zurück,
+  sondern den per Coulomb-Zähler bestimmten Ladestand, umgerechnet über eine Li-Ion-OCV-Tabelle
+  (0 % = 3000 mV … 100 % = 4200 mV, `variants/inhero_mr2/helpers/BatteryOcvMapping.cpp` im Inhero-Fork).
+  Status und Telemetrie-Kanal 1 enthalten daher diesen Ersatzwert, und er landet so auch in CoreScope.
+  Die echte Akkuspannung, den Ladestand, den Strom und die Solarwerte liefert das Board zusätzlich auf
+  einem eigenen LPP-Kanal (nächster freier Kanal, meist 2) bzw. per CLI `get board.telem`. Die App
+  rechnet den Ersatzwert mit derselben Tabelle in Prozent zurück (Typ „Inhero MR2 (Ladestand)“).
+  Sauberer wäre es, wenn die Abfrage-Station für MR2-Boards den Board-Kanal ausliest.
+- **Nicht bewertbar:** Ist ein Messwert für den gewählten Typ unplausibel, gibt es keine Ampelfarbe
+  und keine Warnungen. Die gemerkte Stufe wird zurückgesetzt.
 - **Trend:** lineare Regression über 7 Tage, angezeigt ab 6 Werten und 24 h Zeitspanne.
 - Stand 16.11.2026: Werte gibt es nur für die Repeater, die das Script des Betreibers abfragt (5 von 871).
   Mehr Abdeckung bringen verteilte Abfrage-Stationen. Jede fragt nur die Repeater in ihrer
