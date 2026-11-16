@@ -14,6 +14,7 @@ import androidx.room.TypeConverters
 import androidx.room.Upsert
 import de.saarmesh.waechter.domain.BatteryInfo
 import de.saarmesh.waechter.domain.BatteryLevel
+import de.saarmesh.waechter.domain.BatteryProfile
 import de.saarmesh.waechter.domain.BatterySample
 import de.saarmesh.waechter.domain.Favorite
 import de.saarmesh.waechter.domain.Repeater
@@ -51,6 +52,10 @@ data class FavoriteEntity(
     val label: String?,
     /** Zuletzt bewertete Akku-Stufe (OK/LOW/CRITICAL); null = noch nie bewertet. */
     @ColumnInfo(defaultValue = "NULL") val batteryLevel: String? = null,
+    /** Akku-Typ (BatteryProfile.name); null = Server-Schwellen. */
+    @ColumnInfo(defaultValue = "NULL") val batteryProfile: String? = null,
+    @ColumnInfo(defaultValue = "NULL") val batteryLowMv: Int? = null,
+    @ColumnInfo(defaultValue = "NULL") val batteryCriticalMv: Int? = null,
 )
 
 @Entity(tableName = "battery")
@@ -162,9 +167,9 @@ interface VerlaufDao {
 
 @Database(
     entities = [RepeaterEntity::class, FavoriteEntity::class, VerlaufEntity::class, BatteryEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -187,6 +192,7 @@ fun RepeaterEntity.toDomain() = Repeater(
 fun FavoriteEntity.toDomain() = Favorite(
     publicKey, offlineAfterHours, notify, wasDown,
     batteryLevel?.let { v -> BatteryLevel.entries.firstOrNull { it.name == v } },
+    BatteryProfile.parse(batteryProfile), batteryLowMv, batteryCriticalMv,
 )
 
 fun BatteryInfo.toEntity(fetchedAt: Long) = BatteryEntity(

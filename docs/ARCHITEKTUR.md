@@ -24,7 +24,9 @@ nicht `fork-aca6d9c`. Daran wurde nichts geändert.
 
 ```
 Repeater         (Room: repeater)   1:1 aus repeater.json, Cache für Offline-Betrieb
-Favorite         (Room: favorite)   pk, offlineAfterHours?, notify, wasDown?, label
+Favorite         (Room: favorite)   pk, offlineAfterHours?, notify, wasDown?, label,
+                                    batteryLevel?, batteryProfile?, batteryLowMv?, batteryCriticalMv?
+Battery          (Room: battery)    pk, latestMv, latestTs, low/critical (Server), samples, fetchedAt
 SightingHistory  (Room: verlauf)    pk, from, step=3600, hourly[504]
 AppSettings      (DataStore)        serverUrl, pollMinutes, notificationsEnabled, lastGenerated, lastFetch
 ```
@@ -108,6 +110,11 @@ Script über den meshcore-mux) → MQTT → CoreScope-Fork (`node_metrics`) →
 - **Stufen:** OK > schwach (≤ low) > kritisch (≤ critical), mit 100 mV Hysterese beim Erholen.
 - **Benachrichtigung** nur bei Verschlechterung (OK→schwach, →kritisch). Die Erholung wird still
   gemerkt. Werte älter als 48 h lösen nichts aus.
+- **Schwellen pro Favorit (v0.3.0):** Akku-Typ Server / Li-Ion (3500/3300 mV) / LiFePO4 (3100/2900 mV)
+  / eigene Werte. Ungültige eigene Werte (kritisch ≥ schwach, außerhalb 2–15 V) fallen auf den Server
+  zurück. Ein Wechsel setzt die gemerkte Stufe zurück, damit die Umstellung selbst keinen Alarm auslöst.
+  Plausibilität: Liegt der Messwert mehr als 100 mV über dem Vollladewert des Typs (Li-Ion 4,25 V,
+  LiFePO4 3,65 V), zeigt die App einen Hinweis.
 - **Trend:** lineare Regression über 7 Tage, angezeigt ab 6 Werten und 24 h Zeitspanne.
 - Stand 16.11.2026: Werte gibt es nur für die Repeater, die das Script des Betreibers abfragt (5 von 871).
   Mehr Abdeckung bringen verteilte Abfrage-Stationen. Jede fragt nur die Repeater in ihrer

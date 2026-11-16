@@ -25,6 +25,9 @@ Ihre Daten kommen aus dem öffentlichen Ausfall-Dienst auf [live.saarmesh.de/aus
 - **Akku** (ab v0.2.0): Spannung, Verlauf über 7 bzw. 30 Tage, Trend in mV/Tag und Warnschwellen,
   sofern CoreScope Werte für den Repeater hat. Benachrichtigung bei „schwach“ und „kritisch“ für
   Favoriten (mit Hysterese, damit Solar-Tagesgänge nicht dauernd melden)
+- **Akku-Typ pro Repeater** (ab v0.3.0): Li-Ion (schwach ≤ 3,50 V, kritisch ≤ 3,30 V), LiFePO4
+  (≤ 3,10 V / ≤ 2,90 V), Server-Standard (3,30 / 3,00 V) oder eigene Werte. Mit Hinweis, wenn die
+  gemeldete Spannung nicht zum Typ passt (z. B. 4,16 V bei LiFePO4 → Board misst etwas anderes)
 - **Widget** (Jetpack Glance): Ampel für die Favoriten
 - **Offline-Cache** (Room), Material 3 mit dynamischen Farben und Dark Mode
 - Server-URL einstellbar (Standard `https://live.saarmesh.de`)
@@ -76,7 +79,6 @@ Lokal geht es alternativ über eine nicht eingecheckte `keystore.properties`
 **Phase 2**
 - Mehr Repeater mit Akku-Werten: verteilte Abfrage-Stationen der Betreiber, die ihre erreichbaren
   Repeater abfragen und an CoreScope melden (siehe `docs/ARCHITEKTUR.md`)
-- Eigene Warnschwellen pro Repeater (z. B. für LiFePO4-Packs)
 - Paten-Modus: Repeater per E-Mail abonnieren über das bestehende Abo von `/ausfall/`
 - Echtes Server-Push über ntfy (self-hosted) und UnifiedPush statt Polling, ohne Google-Dienste
 - Französische Oberfläche (SaarLorLux)

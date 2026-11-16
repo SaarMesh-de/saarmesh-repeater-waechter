@@ -6,6 +6,7 @@
     <string name="back">Zurück</string>
     <string name="clear">Leeren</string>
     <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
     <string name="later">Später</string>
     <string name="allow">Erlauben</string>
     <string name="favorite">Zu „Meine Repeater“ hinzufügen</string>
@@ -110,7 +111,19 @@
     <string name="batt_7d">7 Tage</string>
     <string name="batt_30d">30 Tage</string>
     <string name="batt_few">Zu wenige Messwerte in diesem Zeitraum.</string>
-    <string name="batt_thresholds">Warnschwellen (Server): schwach ≤ %1$s, kritisch ≤ %2$s</string>
+    <string name="batt_thresholds">Schwellen (%1$s): schwach ≤ %2$s, kritisch ≤ %3$s</string>
+    <string name="batt_change">Ändern</string>
+    <string name="batt_implausible">%1$s passt nicht zu %2$s (voll max. %3$s). Vermutlich misst das Board eine andere Spannung, z. B. die des Ladereglers. Dann besser „Eigene Werte“ passend zur gemeldeten Spannung wählen.</string>
+    <string name="bprof_title">Akku-Typ</string>
+    <string name="bprof_server">Server-Standard</string>
+    <string name="bprof_liion">Li-Ion (3,6 V)</string>
+    <string name="bprof_lifepo4">LiFePO4 (3,2 V)</string>
+    <string name="bprof_custom">Eigene Werte</string>
+    <string name="bprof_values">schwach ≤ %1$s V, kritisch ≤ %2$s V</string>
+    <string name="bprof_low">Schwach ab (V)</string>
+    <string name="bprof_crit">Kritisch ab (V)</string>
+    <string name="bprof_invalid">„Kritisch“ muss unter „schwach“ liegen (2,0 bis 15,0 V).</string>
+    <string name="bprof_hint">Bezieht sich auf die Spannung, die CoreScope für diesen Repeater meldet. Gilt für Anzeige und Benachrichtigung.</string>
     <string name="batt_source">Die Werte fragen Stationen von Repeater-Betreibern ab und melden sie an CoreScope. Die App selbst fragt nichts im Mesh ab.</string>
 
     <!-- Einstellungen -->

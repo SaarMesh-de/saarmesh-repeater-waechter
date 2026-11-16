@@ -11,6 +11,7 @@ import de.saarmesh.waechter.data.remote.Endpoints
 import de.saarmesh.waechter.data.settings.SettingsRepository
 import de.saarmesh.waechter.domain.BatteryInfo
 import de.saarmesh.waechter.domain.BatteryLevel
+import de.saarmesh.waechter.domain.BatteryProfile
 import de.saarmesh.waechter.domain.Favorite
 import de.saarmesh.waechter.domain.Repeater
 import de.saarmesh.waechter.domain.RepeaterSnapshot
@@ -88,6 +89,20 @@ class RepeaterRepository @Inject constructor(
     }
 
     suspend fun setBatteryLevel(pk: String, level: BatteryLevel?) = db.favorites().setBatteryLevel(pk, level?.name)
+
+    /** Akku-Typ/eigene Schwellen setzen; die gemerkte Stufe wird zurueckgesetzt (kein Alarm durch die Umstellung). */
+    suspend fun setBatteryProfile(pk: String, profile: BatteryProfile, lowMv: Int?, criticalMv: Int?) {
+        db.favorites().get(pk)?.let {
+            db.favorites().upsert(
+                it.copy(
+                    batteryProfile = profile.name.takeIf { profile != BatteryProfile.SERVER },
+                    batteryLowMv = lowMv.takeIf { profile == BatteryProfile.CUSTOM },
+                    batteryCriticalMv = criticalMv.takeIf { profile == BatteryProfile.CUSTOM },
+                    batteryLevel = null,
+                ),
+            )
+        }
+    }
 
     suspend fun setFavorite(pk: String, favorite: Boolean, label: String?) {
         if (favorite) {
