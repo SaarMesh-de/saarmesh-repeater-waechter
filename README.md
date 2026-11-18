@@ -72,7 +72,8 @@ Wie live.saarmesh.de den Status berechnet, steht auf der Seite
 
 **Warum hat mein Repeater keine Akku-Anzeige?** Repeater senden ihre Akkuspannung nicht von sich aus.
 Jemand muss sie gezielt abfragen und an live.saarmesh.de weitergeben. Liegen für einen Repeater keine
-Werte vor, bleibt die Akku-Karte einfach weg.
+Werte vor, bleibt die Akku-Karte einfach weg. Betreibst du einen Repeater auf Akku oder Solar und nutzt Home
+Assistant? Dann kannst du die Werte selbst einliefern: [Akkuwerte melden](docs/TELEMETRIE-STATION.md).
 
 ## Datenschutz
 
